@@ -10,7 +10,7 @@ import com.mactso.regrowth.utility.Utility;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
@@ -178,8 +178,8 @@ public class MyConfig {
 				"minecraft:cobblestone_wall");
 		playerWallControlBlock = Blocks.COBBLESTONE_WALL; // default value if fail.
 		try {
-			ResourceLocation id = new ResourceLocation(playerWallControlBlockString);
-			playerWallControlBlock  = BuiltInRegistries.BLOCK.get(id);
+			Identifier id = Identifier.parse(playerWallControlBlockString);
+			playerWallControlBlock  = BuiltInRegistries.BLOCK.getValue(id);
 		}
 		catch (Exception e) {
 			Utility.debugMsg(0, "playerWallControlBlockString: '" + playerWallControlBlockString + "' is invalid");

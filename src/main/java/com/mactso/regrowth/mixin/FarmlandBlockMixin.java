@@ -10,18 +10,18 @@ import com.mactso.regrowth.events.TrampleEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 
-@Mixin(FarmBlock.class)
+@Mixin(FarmlandBlock.class)
 	abstract class FarmlandBlockMixin {
 
 	    @Inject(method = "fallOn(Lnet/minecraft/world/level/Level;"
 	    		+ "Lnet/minecraft/world/level/block/state/BlockState;"
 	    		+ "Lnet/minecraft/core/BlockPos;"
-	    		+ "Lnet/minecraft/world/entity/Entity;F)V", at = @At("HEAD"), cancellable = true)
-	    private void onFarmlandTrampled(Level w, BlockState bs, BlockPos pos, Entity entity, float f, CallbackInfo ci) {
+	    		+ "Lnet/minecraft/world/entity/Entity;D)V", at = @At("HEAD"), cancellable = true)
+	    private void onFarmlandTrampled(Level w, BlockState bs, BlockPos pos, Entity entity, double f, CallbackInfo ci) {
 
 	    	if (TrampleEventHandler.handleTrampleEvent(entity)) {
 	    		ci.cancel();

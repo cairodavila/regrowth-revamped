@@ -1,5 +1,7 @@
 package com.mactso.regrowth.utility;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -8,12 +10,11 @@ import com.mactso.regrowth.config.MyConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -21,10 +22,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -143,20 +145,21 @@ public class Utility {
 		MutableComponent component = Component.literal(chatMessage);
 		component.setStyle(component.getStyle().withBold(true));
 		component.setStyle(component.getStyle().withColor(textColor));
-		p.sendSystemMessage(component);
-
-
+		if (p instanceof ServerPlayer serverPlayer) {
+			serverPlayer.sendSystemMessage(component);
+		}
 	}
 
 	public static void sendChat(Player p, String chatMessage, ChatFormatting textColor) {
 
 		MutableComponent component = Component.literal(chatMessage);
 		component.setStyle(component.getStyle().withColor(textColor));
-		p.sendSystemMessage(component);
-
+		if (p instanceof ServerPlayer serverPlayer) {
+			serverPlayer.sendSystemMessage(component);
+		}
 	}
 	
-	public static void updateEffect(LivingEntity e, int amplifier, MobEffect mobEffect, int duration) {
+	public static void updateEffect(LivingEntity e, int amplifier, Holder<MobEffect> mobEffect, int duration) {
 		MobEffectInstance ei = e.getEffect(mobEffect);
 		if (amplifier == 10) {
 			amplifier = 20; // player "plaid" speed.
@@ -193,13 +196,13 @@ public class Utility {
 			int modifier, boolean persistant, boolean isBaby) {
 		int numZP;
 		Mob e;
-		numZP = level.random.nextInt(range) - modifier;
+		numZP = level.getRandom().nextInt(range) - modifier;
 		if (numZP < 0)
 			return false;
 		for (int i = 0; i <= numZP; i++) {
 
-			e = (Mob) et.spawn(level, savePos, MobSpawnType.NATURAL);
-			if (persistant) 
+			e = (Mob) et.spawn(level, savePos, EntitySpawnReason.NATURAL);
+			if (persistant)
 				e.setPersistenceRequired();
 			e.setBaby(isBaby);
 		}
@@ -210,7 +213,7 @@ public class Utility {
 		Mob e;
 
 		for (int i = 0; i < X; i++) {
-			e = (Mob) et.spawn(level, savePos, MobSpawnType.NATURAL);
+			e = (Mob) et.spawn(level, savePos, EntitySpawnReason.NATURAL);
 			e.setBaby(isBaby);
 		}
 		return true;
@@ -219,19 +222,13 @@ public class Utility {
 	
 	public static void setName(ItemStack stack, String inString)
 	{
-		CompoundTag tag = stack.getOrCreateTagElement("display");
-		ListTag list = new ListTag();
-		list.add(StringTag.valueOf(inString));
-		tag.put("Name", list);
+		stack.set(DataComponents.CUSTOM_NAME, Component.literal(inString));
 	}
 	
 	
 	public static void setLore(ItemStack stack, String inString)
 	{
-		CompoundTag tag = stack.getOrCreateTagElement("display");
-		ListTag list = new ListTag();
-		list.add(StringTag.valueOf(inString));
-		tag.put("Lore", list);
+		stack.set(DataComponents.LORE, new ItemLore(List.of(Component.literal(inString))));
 	}
 	
 	public static boolean isNotNearWebs(BlockPos pos, ServerLevel serverLevel) {
@@ -280,12 +277,12 @@ public class Utility {
 
 	@SuppressWarnings("deprecation")
 	public static String getResourceLocationString(Block block) {
-		return block.builtInRegistryHolder().key().location().toString();
+		return block.builtInRegistryHolder().key().identifier().toString();
 	}
 
 	@SuppressWarnings("deprecation")
 	public static String getResourceLocationString(Item item) {
-		return item.builtInRegistryHolder().key().location().toString();
+		return item.builtInRegistryHolder().key().identifier().toString();
 	}
 
 	public static String getResourceLocationString(Entity entity) {

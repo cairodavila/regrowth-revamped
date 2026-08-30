@@ -32,6 +32,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -40,10 +41,11 @@ import net.minecraft.world.entity.ai.village.poi.PoiRecord;
 import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.IronGolem;
-import net.minecraft.world.entity.animal.horse.AbstractHorse;
-import net.minecraft.world.entity.npc.Villager;
-import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.entity.animal.cow.CowSoundVariants;
+import net.minecraft.world.entity.animal.equine.AbstractHorse;
+import net.minecraft.world.entity.animal.golem.IronGolem;
+import net.minecraft.world.entity.npc.villager.Villager;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
@@ -75,14 +77,14 @@ import net.minecraft.world.level.block.WallTorchBlock;
 import net.minecraft.world.level.block.WoolCarpetBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.levelgen.Heightmap.Types;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public class MoveEntityEvent {
 
-	public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+	public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
 	public static final BooleanProperty OPEN = FenceGateBlock.OPEN;
 	static final int WALL_CENTER = 0;
 	static final int FENCE_CENTER = 0;
@@ -168,7 +170,7 @@ public class MoveEntityEvent {
 		}
 
 		if (regrowthType.equals(ACTION_BOTH)) {
-			if (entity.level().random.nextDouble() * 100 > 85.0) {
+			if (entity.level().getRandom().nextDouble() * 100 > 85.0) {
 				regrowthType = ACTION_GROW;
 			} else {
 				regrowthType = ACTION_EAT;
@@ -344,7 +346,7 @@ public class MoveEntityEvent {
 
 //		LivingEntity le = event.getEntity();
 		Level level = le.level();
-		if (level.isClientSide) {
+		if (level.isClientSide()) {
 			return;
 		}
 		
@@ -398,7 +400,7 @@ public class MoveEntityEvent {
 		if (isHorseTypeEatingNow(le)) {
 			regrowthEventOdds *= 20;
 		}
-		double randomD100Roll = le.level().random.nextDouble();
+		double randomD100Roll = le.level().getRandom().nextDouble();
 		int debugvalue = 0; // TODO make sure value 0 after debugging.
 
 		long chunkAge = le.level().getChunkAt(le.blockPosition()).getInhabitedTime();
@@ -651,7 +653,7 @@ public class MoveEntityEvent {
 		
 		sapling = Blocks.OAK_SAPLING.defaultBlockState();
 		ResourceKey<Biome> k = serverLevel.getBiomeManager().getBiome(pos).unwrapKey().get();
-		String biomeName = k.location().getPath();
+		String biomeName = k.identifier().getPath();
 
 		if (biomeName.contains("birch")) {
 			sapling = Blocks.BIRCH_SAPLING.defaultBlockState();
@@ -748,7 +750,7 @@ public class MoveEntityEvent {
 			if (footBlockState.is(BlockTags.FLOWERS)) {
 				return true;
 			}
-			if (footBlockState.is(BlockTags.TALL_FLOWERS)) {
+			if (footBlockState.is(BlockTags.FLOWERS)) {
 				return true;
 			}
 		} catch (Exception e) {
@@ -1006,7 +1008,7 @@ public class MoveEntityEvent {
 		LivingEntity le = (LivingEntity) entity;
 		helperChildAgeEntity(entity);
 		if (le.getMaxHealth() > le.getHealth() && (MyConfig.getEatingHeals())) {
-			MobEffectInstance ei = new MobEffectInstance(MobEffects.HEAL, 1, 0, false, true);
+			MobEffectInstance ei = new MobEffectInstance(MobEffects.INSTANT_HEALTH, 1, 0, false, true);
 			le.addEffect(ei);
 		}
 		return true;
@@ -1206,7 +1208,7 @@ public class MoveEntityEvent {
 			Block theBlock = null;
 			Block theCapBlock = null;
 
-			if (sLevel.random.nextDouble() * 100.0 > 75.0) {
+			if (sLevel.getRandom().nextDouble() * 100.0 > 75.0) {
 				theBlock = Blocks.RED_MUSHROOM;
 				theCapBlock = Blocks.RED_MUSHROOM_BLOCK;
 			} else {
@@ -1222,7 +1224,7 @@ public class MoveEntityEvent {
 				mobGrowSmallMushroom(sLevel, ePos, theCapBlock);
 			} else {
 				try {
-					mb.growMushroom(sLevel, ePos, theBlock.defaultBlockState(), sLevel.random);
+					mb.growMushroom(sLevel, ePos, theBlock.defaultBlockState(), sLevel.getRandom());
 				} catch (Exception e) {
 					// technically an "impossible" error but it's happened so this should
 					// bulletproof it.
@@ -1314,7 +1316,7 @@ public class MoveEntityEvent {
 			if (!Utility.getResourceLocationString(footBlock).contains("byg")) {
 				try {
 					BonemealableBlock ib = (BonemealableBlock) footBlock;
-					ib.performBonemeal((ServerLevel) ent.level(), ent.level().random, ePos, ent.level().getBlockState(ePos));
+					ib.performBonemeal((ServerLevel) ent.level(), ent.level().getRandom(), ePos, ent.level().getBlockState(ePos));
 					Utility.debugMsg(2, ePos, key + " grew and hid in tall plant.");
 					return true;  // could make this method void.
 
@@ -1336,7 +1338,7 @@ public class MoveEntityEvent {
 
 				if (excess > 0) {
 					if (excess > 16) {
-						le.level().playLocalSound(le.getX(), le.getY(), le.getZ(), SoundEvents.COW_DEATH, SoundSource.NEUTRAL,
+						le.level().playLocalSound(le.getX(), le.getY(), le.getZ(), SoundEvents.COW_SOUNDS.get(CowSoundVariants.SoundSet.CLASSIC).deathSound().value(), SoundSource.NEUTRAL,
 								1.1f, 0.54f, true);
 						le.setPos(le.getX(), -66, le.getZ());
 
@@ -1365,7 +1367,7 @@ public class MoveEntityEvent {
 
 		ServerLevel serverLevel = (ServerLevel) entity.level();
 		
-		if (serverLevel.random.nextDouble() > Math.abs(sinY))
+		if (serverLevel.getRandom().nextDouble() > Math.abs(sinY))
 			return;
 
 		BlockState sapling = null;
@@ -1425,7 +1427,7 @@ public class MoveEntityEvent {
 	}
 
 	private static void vBeeKeeperFlowers(Villager ve) {
-		if (!ve.getVillagerData().getProfession().name().contains("beekeeper")) {
+		if (!ve.getVillagerData().profession().getRegisteredName().contains("beekeeper")) {
 			return;
 		}
 		Utility.debugMsg(1, ve.blockPosition(), "Beekeeper checking on flowers here.");
@@ -1441,16 +1443,16 @@ public class MoveEntityEvent {
 
 	private static void vClericalHealing(Villager ve) {
 
-		if (ve.getVillagerData().getProfession() != VillagerProfession.CLERIC) {
+		if (!ve.getVillagerData().profession().is(VillagerProfession.CLERIC)) {
 			return;
 		}
-		long daytime = ve.level().getDayTime() % 24000;
+		long daytime = ve.level().getOverworldClockTime() % 24000;
 
 		if (daytime < 9000 || daytime > 11000) {
 			return;
 		}
 		if (ve.level() instanceof ServerLevel varW) {
-			int clericalLevel = ve.getVillagerData().getLevel();
+			int clericalLevel = ve.getVillagerData().level();
 
 			BlockPos pos = BlockPos.containing(ve.getX(), (ve.getY() + 0.99d), (ve.getZ()));
 			AABB box = AABB.encapsulatingFullBlocks(pos.east(4).above(2).north(4), pos.west(4).below(2).south(4));
@@ -1494,7 +1496,7 @@ public class MoveEntityEvent {
 	// it.
 	// todo add hydration check before tilling land.
 	private static boolean vImproveFarm(Villager ve, String regrowthType) {
-		if (ve.getVillagerData().getProfession() != VillagerProfession.FARMER) {
+		if (!ve.getVillagerData().profession().is(VillagerProfession.FARMER)) {
 			return false;
 		}
 
@@ -1606,7 +1608,7 @@ public class MoveEntityEvent {
 		homeFenceDiameter = (homeFenceDiameter / 2) - 1;
 
 		Collection<PoiRecord> result = ((ServerLevel) ve.level()).getPoiManager()
-				.getInSquare(t -> t == PoiTypes.HOME, vePos, 17, Occupancy.ANY)
+				.getInSquare(t -> t.is(PoiTypes.HOME), vePos, 17, Occupancy.ANY)
 				.collect(Collectors.toCollection(ArrayList::new));
 
 		// 08/30/20 Collection had bug with range that I couldn't resolve.
@@ -1963,7 +1965,7 @@ public class MoveEntityEvent {
 		if (isOnWallRadius(ve, wallRadius, gVMPPos)) {
 			// check for other meeting place bells blocking wall since too close.
 			Collection<PoiRecord> result = ((ServerLevel) ve.level()).getPoiManager()
-					.getInSquare(t -> t == PoiTypes.MEETING, ve.blockPosition(), 41, Occupancy.ANY)
+					.getInSquare(t -> t.is(PoiTypes.MEETING), ve.blockPosition(), 41, Occupancy.ANY)
 					.collect(Collectors.toCollection(ArrayList::new));
 
 			// 08/30/20 Collection had bug with range that I couldn't resolve.
@@ -2029,23 +2031,23 @@ public class MoveEntityEvent {
 
 	private static void vToolMasterHealing(Villager ve) {
 
-		if (ve.getVillagerData().getProfession() != VillagerProfession.TOOLSMITH) {
+		if (!ve.getVillagerData().profession().is(VillagerProfession.TOOLSMITH)) {
 			return;
 		}
-		long daytime = ve.level().getDayTime() % 24000;
+		long daytime = ve.level().getOverworldClockTime() % 24000;
 
 		if (daytime < 9000 || daytime > 11000) {
 			return;
 		}
 
 		if (ve.level() instanceof ServerLevel varW) {
-			int villagerLevel = ve.getVillagerData().getLevel();
+			int villagerLevel = ve.getVillagerData().level();
 			if (villagerLevel < 1)
 				return;
 			BlockPos pos = BlockPos.containing(ve.getX(), (ve.getY() + 0.99d), (ve.getZ()));
 			AABB box = AABB.encapsulatingFullBlocks(pos.east(6).above(3).north(6), pos.west(6).below(2).south(6));
 
-			List<IronGolem> l = varW.getEntities(EntityType.IRON_GOLEM, box, e -> true);
+			List<IronGolem> l = varW.getEntities(EntityTypes.IRON_GOLEM, box, e -> true);
 
 			for (IronGolem e : l) {
 				boolean heal = true;

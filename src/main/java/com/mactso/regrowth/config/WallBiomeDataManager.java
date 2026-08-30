@@ -7,7 +7,6 @@ import java.util.StringTokenizer;
 import com.mactso.regrowth.utility.Utility;
 
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet.Named;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
@@ -96,20 +95,19 @@ public class WallBiomeDataManager {
 	public static void wallBiomeDataInit() {
 
 		
-        // TODO: line 64 might be wrong method "Named" is different.
-    	Named<Block> walls = BuiltInRegistries.BLOCK.getOrCreateTag(BlockTags.WALLS);
-    	if (!walls.iterator().hasNext()) {  // TODO change to size in fabric and forge
-        	System.out.println("failed to get walls all tags ");
-        	return;
-    	}
-    	System.out.println("succeeded in loading walls all tags");
-    	
-        Named<Block> fences = BuiltInRegistries.BLOCK.getOrCreateTag(BlockTags.FENCES);
-    	if (!fences.iterator().hasNext()) {
-        	System.out.println("failed to get fences all tags ");
-        	return;
-    	}        
-    	System.out.println("succeeded in loading fences all tags");
+        Iterable<Holder<Block>> walls = BuiltInRegistries.BLOCK.getTagOrEmpty(BlockTags.WALLS);
+        if (!walls.iterator().hasNext()) {
+            System.out.println("failed to get walls all tags ");
+            return;
+        }
+        System.out.println("succeeded in loading walls all tags");
+
+        Iterable<Holder<Block>> fences = BuiltInRegistries.BLOCK.getTagOrEmpty(BlockTags.FENCES);
+        if (!fences.iterator().hasNext()) {
+            System.out.println("failed to get fences all tags ");
+            return;
+        }
+        System.out.println("succeeded in loading fences all tags");
     	
 		wallBiomeDataHashtable.clear();
 

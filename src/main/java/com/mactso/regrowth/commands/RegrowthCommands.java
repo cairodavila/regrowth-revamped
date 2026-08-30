@@ -12,16 +12,15 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.phys.Vec3;
 
 public class RegrowthCommands {
 	String subcommand = "";
@@ -34,7 +33,7 @@ public class RegrowthCommands {
 		System.out.println("Enter register");  
 		dispatcher.register(Commands.literal("regrowth").requires((source) -> 
 			{
-				return source.hasPermission(2);
+				return source.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER);
 			}
 		)
 		.then(Commands.literal("debugLevel").then(
@@ -49,19 +48,18 @@ public class RegrowthCommands {
 
 					Level worldName = p.level();
 					String objectInfo = "";
-					MinecraftServer srv = p.getServer();
-					if (!(p.level().isClientSide)) {
-						Minecraft mc = Minecraft.getInstance();
-	                    HitResult object = mc.hitResult;
-	                    if (object instanceof EntityHitResult) {
-	                    	EntityHitResult ertr = (EntityHitResult) object;
-	                    	Entity tempEntity = ertr.getEntity();
-	                    	objectInfo = EntityType.getKey(tempEntity.getType()).toString();
-	                     } else {
-	                   		objectInfo = "You are not looking at an entity.";	                    	 
-	                     }
+					Vec3 eyePosition = p.getEyePosition(1.0F);
+					Vec3 viewVector = p.getViewVector(1.0F);
+					double reach = 32.0D;
+					EntityHitResult object = ProjectileUtil.getEntityHitResult(p, eyePosition,
+							eyePosition.add(viewVector.scale(reach)),
+							p.getBoundingBox().expandTowards(viewVector.scale(reach)).inflate(1.0D),
+							entity -> entity != p && entity.isPickable(), reach * reach);
+					if (object != null) {
+						Entity tempEntity = object.getEntity();
+						objectInfo = EntityType.getKey(tempEntity.getType()).toString();
 					} else {
-						objectInfo = "Load single player game to see entity you are looking at.";
+						objectInfo = "You are not looking at an entity.";
 					}
 					//ITextComponent component = new StringTextComponent (worldName.getDimension().getType().getRegistryName() 
 		            //		+ "\n Current Values");
