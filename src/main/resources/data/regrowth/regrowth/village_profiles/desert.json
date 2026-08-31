@@ -1,0 +1,11 @@
+{
+  "priority": 50,
+  "match": {
+    "biomes": ["#minecraft:has_structure/village_desert"]
+  },
+  "walls": {
+    "blocks": ["minecraft:sandstone_wall"],
+    "fences": ["minecraft:birch_fence"],
+    "gates": ["minecraft:birch_fence_gate"]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "priority": 10,
+  "professions": ["minecraft:cleric"],
+  "roles": ["heal_people"]
+}

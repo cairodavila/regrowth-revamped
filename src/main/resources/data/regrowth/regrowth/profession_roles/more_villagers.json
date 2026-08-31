@@ -1,0 +1,5 @@
+{
+  "priority": 20,
+  "professions": ["morevillagers:florist"],
+  "roles": ["plant_flowers"]
+}

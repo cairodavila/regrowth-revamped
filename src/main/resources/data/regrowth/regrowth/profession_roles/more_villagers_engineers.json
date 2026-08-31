@@ -1,0 +1,5 @@
+{
+  "priority": 20,
+  "professions": ["morevillagers:engineer"],
+  "roles": ["lighting", "roads", "walls"]
+}

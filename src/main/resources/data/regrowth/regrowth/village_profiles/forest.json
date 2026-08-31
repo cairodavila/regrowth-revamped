@@ -1,0 +1,11 @@
+{
+  "priority": 40,
+  "match": {
+    "biomes": ["#minecraft:is_forest"]
+  },
+  "walls": {
+    "blocks": ["minecraft:mossy_stone_brick_wall"],
+    "fences": ["minecraft:oak_fence"],
+    "gates": ["minecraft:oak_fence_gate"]
+  }
+}

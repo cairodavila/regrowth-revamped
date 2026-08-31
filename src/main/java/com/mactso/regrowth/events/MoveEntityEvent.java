@@ -14,6 +14,9 @@ import com.mactso.regrowth.config.RegrowthEntitiesManager.RegrowthMobItem;
 import com.mactso.regrowth.config.WallBiomeDataManager;
 import com.mactso.regrowth.config.WallFoundationDataManager;
 import com.mactso.regrowth.utility.Utility;
+import com.mactso.regrowth.village.ProfessionRoleManager;
+import com.mactso.regrowth.village.VillageProfessionRole;
+import com.mactso.regrowth.village.VillageService;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
@@ -45,7 +48,6 @@ import net.minecraft.world.entity.animal.cow.CowSoundVariants;
 import net.minecraft.world.entity.animal.equine.AbstractHorse;
 import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.npc.villager.Villager;
-import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
@@ -214,10 +216,10 @@ public class MoveEntityEvent {
 
 		// note all villagers may not have a home. poor homeless villagers.
 		// default = repair farms
-		if (vImproveFarm(ve, regrowthActions)) {
+		if (ProfessionRoleManager.hasRole(ve, VillageProfessionRole.FARM)
+				&& vImproveFarm(ve, regrowthActions)) {
 			Utility.debugMsg(1, ve, debugKey + " farm improved.");
 		}
-		;
 
 		// 'h'eal villagers and players
 		if (regrowthActions.contains("h")) {
@@ -230,7 +232,8 @@ public class MoveEntityEvent {
 		// cut lea'v'es.
 		// remove leaves if facing head height leaves
 
-		if (regrowthActions.contains("v")) {
+		if (regrowthActions.contains("v")
+				&& ProfessionRoleManager.hasRole(ve, VillageProfessionRole.TRIM)) {
 			vImproveLeaves(ve, debugKey);
 		}
 
@@ -239,7 +242,8 @@ public class MoveEntityEvent {
 		// as in the flower beds)
 		// to do - replace "c" with a meaningful constant.
 
-		if (regrowthActions.contains("c")) {
+		if (regrowthActions.contains("c")
+				&& ProfessionRoleManager.hasRole(ve, VillageProfessionRole.CLEAR)) {
 			if ((footBlock instanceof TallGrassBlock) || (footBlock instanceof DoublePlantBlock)
 					|| (footBlock.getDescriptionId().equals("block.byg.short_grass"))) {
 
@@ -251,15 +255,14 @@ public class MoveEntityEvent {
 		// to do - replace "r" with a meaningful constant.f
 		if (regrowthActions.contains("r")) {
 			Utility.debugMsg(1, ve, debugKey + " try road improve.");
-			vImproveRoads(ve, debugKey);
+			VillageService.improveRoad(ve);
 		}
 
 		// note villages may not have a meeting place. Sometimes they change. Sometimes
 		// they take a few minutes to form.
-		if ((regrowthActions.contains("w"))) {
+		if (regrowthActions.contains("w")) {
 			Utility.debugMsg(1, ve, " try town wall build.");
-			vImproveWalls(ve, debugKey, regrowthActions);
-
+			VillageService.improveWall(ve, regrowthActions);
 		}
 
 		if ((regrowthActions.contains("p"))) {
@@ -268,7 +271,9 @@ public class MoveEntityEvent {
 
 		}
 
-		if ((regrowthActions.contains("t") && (footBlock != Blocks.TORCH))) {
+		if (regrowthActions.contains("t")
+				&& ProfessionRoleManager.hasRole(ve, VillageProfessionRole.LIGHTING)
+				&& footBlock != Blocks.TORCH) {
 			if (vImproveLighting(ve)) {
 				Utility.debugMsg(1, ve, debugKey + "-" + footBlock + ", " + groundBlock + " pitch: " + ve.getXRot()
 						+ " lighting improved.");
@@ -410,10 +415,10 @@ public class MoveEntityEvent {
 			if (le instanceof Villager ve) {
 				if (ve.level().getGameTime() % 12 == 0) {
 					if (regrowthActions.contains("r")) {
-						vImproveRoads(ve, "preRoad");
+						VillageService.improveRoad(ve);
 					}
 					if (regrowthActions.contains("w")) {
-						vImproveVillageWall(ve, regrowthActions);
+						VillageService.improveWall(ve, regrowthActions);
 					}
 
 				}
@@ -1427,7 +1432,7 @@ public class MoveEntityEvent {
 	}
 
 	private static void vBeeKeeperFlowers(Villager ve) {
-		if (!ve.getVillagerData().profession().getRegisteredName().contains("beekeeper")) {
+		if (!ProfessionRoleManager.hasRole(ve, VillageProfessionRole.PLANT_FLOWERS)) {
 			return;
 		}
 		Utility.debugMsg(1, ve.blockPosition(), "Beekeeper checking on flowers here.");
@@ -1443,7 +1448,7 @@ public class MoveEntityEvent {
 
 	private static void vClericalHealing(Villager ve) {
 
-		if (!ve.getVillagerData().profession().is(VillagerProfession.CLERIC)) {
+		if (!ProfessionRoleManager.hasRole(ve, VillageProfessionRole.HEAL_PEOPLE)) {
 			return;
 		}
 		long daytime = ve.level().getOverworldClockTime() % 24000;
@@ -1496,7 +1501,7 @@ public class MoveEntityEvent {
 	// it.
 	// todo add hydration check before tilling land.
 	private static boolean vImproveFarm(Villager ve, String regrowthType) {
-		if (!ve.getVillagerData().profession().is(VillagerProfession.FARMER)) {
+		if (!ProfessionRoleManager.hasRole(ve, VillageProfessionRole.FARM)) {
 			return false;
 		}
 
@@ -2031,7 +2036,7 @@ public class MoveEntityEvent {
 
 	private static void vToolMasterHealing(Villager ve) {
 
-		if (!ve.getVillagerData().profession().is(VillagerProfession.TOOLSMITH)) {
+		if (!ProfessionRoleManager.hasRole(ve, VillageProfessionRole.HEAL_GOLEMS)) {
 			return;
 		}
 		long daytime = ve.level().getOverworldClockTime() % 24000;

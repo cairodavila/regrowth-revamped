@@ -1,0 +1,5 @@
+{
+  "priority": 10,
+  "professions": ["minecraft:toolsmith"],
+  "roles": ["heal_golems"]
+}

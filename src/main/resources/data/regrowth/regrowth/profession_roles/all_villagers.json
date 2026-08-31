@@ -1,0 +1,5 @@
+{
+  "priority": 0,
+  "professions": ["*"],
+  "roles": ["clear", "lighting", "roads", "trim", "walls"]
+}

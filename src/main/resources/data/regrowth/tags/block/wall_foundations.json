@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:dirt",
+    "minecraft:grass_block",
+    "minecraft:podzol",
+    "minecraft:mycelium",
+    "minecraft:sand",
+    "minecraft:red_sand",
+    "minecraft:sandstone",
+    "minecraft:red_sandstone",
+    "minecraft:stone",
+    "minecraft:deepslate",
+    "minecraft:netherrack",
+    "#regrowth:village_roads"
+  ]
+}

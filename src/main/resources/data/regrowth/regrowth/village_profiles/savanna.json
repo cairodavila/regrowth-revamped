@@ -1,0 +1,11 @@
+{
+  "priority": 50,
+  "match": {
+    "biomes": ["#minecraft:has_structure/village_savanna", "#minecraft:is_savanna"]
+  },
+  "walls": {
+    "blocks": ["minecraft:stone_brick_wall"],
+    "fences": ["minecraft:acacia_fence"],
+    "gates": ["minecraft:acacia_fence_gate"]
+  }
+}

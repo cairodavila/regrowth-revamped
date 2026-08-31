@@ -1,0 +1,11 @@
+{
+  "priority": 45,
+  "match": {
+    "biomes": ["#minecraft:is_jungle"]
+  },
+  "walls": {
+    "blocks": ["minecraft:granite_wall"],
+    "fences": ["minecraft:jungle_fence"],
+    "gates": ["minecraft:jungle_fence_gate"]
+  }
+}

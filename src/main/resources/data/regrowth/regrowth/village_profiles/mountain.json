@@ -1,0 +1,11 @@
+{
+  "priority": 40,
+  "match": {
+    "biomes": ["#minecraft:is_mountain"]
+  },
+  "walls": {
+    "blocks": ["minecraft:cobblestone_wall"],
+    "fences": ["minecraft:spruce_fence"],
+    "gates": ["minecraft:spruce_fence_gate"]
+  }
+}

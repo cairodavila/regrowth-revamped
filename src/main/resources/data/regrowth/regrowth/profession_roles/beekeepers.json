@@ -1,0 +1,5 @@
+{
+  "priority": 10,
+  "professions": ["*:beekeeper"],
+  "roles": ["plant_flowers"]
+}

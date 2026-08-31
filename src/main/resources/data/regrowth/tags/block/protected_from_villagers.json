@@ -1,0 +1,19 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:bell",
+    "#minecraft:beds",
+    "#minecraft:doors",
+    "#minecraft:trapdoors",
+    "#minecraft:rails",
+    "#minecraft:signs",
+    "#minecraft:wall_signs",
+    "#minecraft:all_hanging_signs",
+    "#minecraft:stairs",
+    "#minecraft:slabs",
+    "#minecraft:logs",
+    "#minecraft:planks",
+    "#minecraft:fences",
+    "#minecraft:walls"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "priority": 45,
+  "match": {
+    "biomes": ["#minecraft:is_badlands"]
+  },
+  "walls": {
+    "blocks": ["minecraft:red_sandstone_wall"],
+    "fences": ["minecraft:oak_fence"],
+    "gates": ["minecraft:oak_fence_gate"]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "priority": 50,
+  "match": {
+    "biomes": ["#minecraft:is_nether"]
+  },
+  "walls": {
+    "blocks": ["minecraft:blackstone_wall"],
+    "fences": ["minecraft:nether_brick_fence"],
+    "gates": ["minecraft:crimson_fence_gate"]
+  }
+}

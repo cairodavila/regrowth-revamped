@@ -1,0 +1,30 @@
+{
+  "priority": 0,
+  "match": {},
+  "boundary": {
+    "mode": "poi_hull",
+    "margin": 8,
+    "scan_radius": 64,
+    "minimum_radius": 18,
+    "maximum_radius": 64,
+    "legacy_radius": 23,
+    "gate_scan_distance": 6,
+    "cache_ticks": 6000
+  },
+  "walls": {
+    "blocks": ["minecraft:cobblestone_wall"],
+    "fences": ["minecraft:oak_fence"],
+    "gates": ["minecraft:oak_fence_gate"],
+    "foundations": ["#regrowth:wall_foundations"],
+    "replaceable": ["#regrowth:wall_replaceable"],
+    "protected": ["#regrowth:protected_from_villagers"],
+    "torch_spacing": 6
+  },
+  "roads": {
+    "blocks": ["#regrowth:village_roads"],
+    "replaceable": ["#regrowth:road_replaceable"],
+    "protected": ["#regrowth:protected_from_villagers"],
+    "repair": "gaps_only",
+    "smooth_slopes": true
+  }
+}
