@@ -3,17 +3,23 @@
   "id": "regrowth",
   "version": "${version}",
 
-  "name": "Regrowth",
-  "description": "Creatures eat and regrow plants.  Villagers improve their villages.",
+  "name": "Regrowth: Revamped",
+  "description": "An unofficial Fabric continuation of Regrowth with adaptive villages and modern Minecraft support.",
   "authors": [
-    "Mactso, Lupicus"
+    "MacTso",
+    "Lupicus"
+  ],
+  "contributors": [
+    "Cairo D'Avila"
   ],
   "contact": {
-    "homepage": "https://www.curseforge.com/minecraft/mc-mods/regrowth"
+    "homepage": "https://modrinth.com/mod/regrowth-revamped",
+    "sources": "https://github.com/cairodavila/regrowth-revamped",
+    "issues": "https://github.com/cairodavila/regrowth-revamped/issues"
   },
 
   "license": "MIT",
-  "icon": "Regrowth.png",
+  "icon": "icon.png",
 
   "environment": "*",
   "entrypoints": {

@@ -135,7 +135,7 @@ public final class VillageService {
 				case OPENING -> ParticleTypes.COMPOSTER;
 				case WALL -> ParticleTypes.END_ROD;
 			};
-			level.sendParticles(player, particle, true, false,
+			level.sendParticles(player, particle, true, true,
 					position.getX() + 0.5, position.getY() + 0.6, position.getZ() + 0.5,
 					1, 0.0, 0.0, 0.0, 0.0);
 			particles++;

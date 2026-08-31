@@ -80,6 +80,10 @@ jar {
 		into("META-INF")
 		rename { "LICENSE-${project.base.archivesName.get()}.txt" }
 	}
+	from("NOTICE.md") {
+		into("META-INF")
+		rename { "NOTICE-${project.base.archivesName.get()}.txt" }
+	}
 }
 
 // configure the maven publication
