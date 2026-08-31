@@ -77,7 +77,8 @@ java {
 
 jar {
 	from("LICENSE") {
-		rename { "${it}_${project.base.archivesName.get()}"}
+		into("META-INF")
+		rename { "LICENSE-${project.base.archivesName.get()}.txt" }
 	}
 }
 
