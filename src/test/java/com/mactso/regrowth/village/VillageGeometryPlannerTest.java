@@ -67,6 +67,17 @@ class VillageGeometryPlannerTest {
 				.findFirst().orElseThrow().role());
 	}
 
+	@Test
+	void boundaryThatIsAllRoadIsLeftOpen() {
+		VillageBoundarySettings settings = new VillageBoundarySettings(
+				VillageBoundaryMode.LEGACY, 8, 64, 18, 64, 4, 6, 6000);
+		VillagePlan walls = VillageGeometryPlanner.create(new GridPoint(0, 0), List.of(), settings);
+
+		VillagePlan gated = VillageGeometryPlanner.markRoadGates(walls, node -> true);
+
+		assertEquals(walls.boundary().size(), gated.openingCount());
+	}
+
 	private static void assertConnectedLoop(VillagePlan plan) {
 		for (int index = 0; index < plan.boundary().size(); index++) {
 			GridPoint current = plan.boundary().get(index).position();

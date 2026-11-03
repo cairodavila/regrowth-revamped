@@ -1,86 +1,64 @@
 // 15.2 - 1.0.0.0 regrowth
 package com.mactso.regrowth.config;
 
-import java.util.Hashtable;
-import java.util.StringTokenizer;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class RegrowthEntitiesManager {
-	public static Hashtable<String, RegrowthMobItem> regrowthMobHashtable = new Hashtable<>();
-	public static String[] defaultRegrowthMobs;
 
-	public static RegrowthMobItem getRegrowthMobInfo(String key) {
-		String iKey = key;
+	private static final Logger LOGGER = LogManager.getLogger();
+	private static final Map<String, RegrowthMobItem> regrowthMobs = new HashMap<>();
 
-		if (regrowthMobHashtable.isEmpty()) {
-			regrowthMobInit();
-		}
-
-		RegrowthMobItem r = regrowthMobHashtable.get(iKey);
-
-		return r;
-	}
-
-	public static String getRegrowthHashAsString() {
-		String returnString="";
-		String regrowthType;
-		double percentage;
-		for (String key:regrowthMobHashtable.keySet()) {
-			regrowthType = regrowthMobHashtable.get(key).regrowthAction;
-			percentage = regrowthMobHashtable.get(key).regrowthEventSeconds;
-			String tempString = key+","+regrowthType+","+percentage+";";
-			returnString += tempString;
-		}
-		return returnString;
-	
+	public static RegrowthMobItem getRegrowthMobInfo(String entityId) {
+		return regrowthMobs.get(entityId);
 	}
 
 	public static void regrowthMobInit() {
-		
+		regrowthMobs.clear();
+		regrowthMobs.putAll(parseActionMobList(MyConfig.getActionMobList()));
+	}
 
-		regrowthMobHashtable.clear();
-
-		String oneMob = "";
-		StringTokenizer tokenizedMobString = new StringTokenizer(MyConfig.getActionMobList(), ";");
-		while (tokenizedMobString.hasMoreElements()) {
-			oneMob = tokenizedMobString.nextToken().trim();
-			if (oneMob.isEmpty()) continue;
-			try {
-				StringTokenizer st = new StringTokenizer(oneMob, ",");
-				String modAndEntity = st.nextToken();
-				String key = modAndEntity;
-				String regrowthType = st.nextToken();
-				String secondsString = st.nextToken();
-				double seconds = Double.parseDouble(secondsString.trim());
-				if (seconds <= 1.0) {
-					seconds = 1.0;
-				}
-				regrowthMobHashtable.put(key, new RegrowthMobItem(regrowthType, seconds));
+	static Map<String, RegrowthMobItem> parseActionMobList(String actionMobList) {
+		Map<String, RegrowthMobItem> mobs = new HashMap<>();
+		for (String mobEntry : actionMobList.split(";")) {
+			if (mobEntry.isBlank()) {
+				continue;
 			}
-			catch (Exception e) {
-				System.out.println("Regrowth Debug:  Bad Mob Config : " + oneMob);
+			String[] fields = mobEntry.split(",");
+			try {
+				String entityId = fields[0].trim();
+				String actions = fields[1].trim();
+				// An entry without actions would still run the shared overcrowding damage.
+				if (entityId.isEmpty() || actions.isEmpty()) {
+					throw new IllegalArgumentException("blank entity or actions");
+				}
+				double seconds = Math.max(1.0, Double.parseDouble(fields[2].trim()));
+				mobs.put(entityId, new RegrowthMobItem(actions, seconds));
+			} catch (RuntimeException e) {
+				LOGGER.warn("Regrowth: bad actionMobList entry '{}', expected entity,actions,seconds", mobEntry.trim());
 			}
 		}
-
+		return mobs;
 	}
 
 	public static class RegrowthMobItem {
-		double regrowthEventSeconds;
-		String regrowthAction;
-		
+		private final double regrowthEventSeconds;
+		private final String regrowthAction;
+
 		public RegrowthMobItem(String regrowthType, double regrowthEventSeconds) {
-			this.regrowthAction =  regrowthType;
+			this.regrowthAction = regrowthType;
 			this.regrowthEventSeconds = regrowthEventSeconds;
 		}
 
 		public String getRegrowthActions() {
 			return regrowthAction.toLowerCase();
 		}
+
 		public double getRegrowthEventSeconds() {
 			return regrowthEventSeconds;
 		}
-
 	}
-
-
 }

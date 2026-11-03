@@ -48,7 +48,7 @@ public final class VillageGeometryPlanner {
 			}
 		}
 		if (firstNonRoad < 0) {
-			return plan;
+			return plan.withBoundaryRoles(Collections.nCopies(boundarySize, BoundaryRole.OPENING));
 		}
 
 		List<BoundaryRole> roles = new ArrayList<>(Collections.nCopies(boundarySize, BoundaryRole.WALL));

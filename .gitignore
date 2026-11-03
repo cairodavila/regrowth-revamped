@@ -3,7 +3,7 @@
 /.settings/
 /bin/
 /run/
-/build/
+build/
 /.project
 /runClient.launch
 /runData.launch
@@ -11,3 +11,4 @@
 
 # Local raw screen recordings
 Screencast_*.mp4
+logs/
