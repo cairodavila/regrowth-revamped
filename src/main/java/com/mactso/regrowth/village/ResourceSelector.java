@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -33,10 +34,14 @@ public record ResourceSelector(Identifier identifier, boolean tag) {
 	}
 
 	public boolean matches(Holder<Biome> biome) {
+		return matches(biome, Registries.BIOME);
+	}
+
+	public <T> boolean matches(Holder<T> holder, ResourceKey<? extends Registry<T>> registry) {
 		if (tag) {
-			return biome.is(TagKey.create(Registries.BIOME, identifier));
+			return holder.is(TagKey.create(registry, identifier));
 		}
-		return biome.is(ResourceKey.create(Registries.BIOME, identifier));
+		return holder.is(ResourceKey.create(registry, identifier));
 	}
 
 	public Optional<Block> firstBlock(Predicate<BlockState> validator) {

@@ -2,102 +2,102 @@
   <strong>Regrowth for modern Fabric, with village behavior that adapts to modded layouts.</strong>
 </p>
 
-> **Regrowth: Revamped is an unofficial continuation.** It is based on [Regrowth](https://github.com/mactso/Regrowth) by MacTso and Lupicus and is not an official upstream release.
+> **Regrowth: Revamped is an unofficial continuation.** it's based on [Regrowth](https://github.com/mactso/Regrowth) by MacTso and Lupicus and is not an official upstream release.
 
-Regrowth gives creatures small environmental effects and lets villagers maintain their settlements over time. Animals can eat or spread vegetation, monsters retain their original environmental actions, and villagers repair farms, roads, lighting, vegetation, and village walls.
+Regrowth gives creatures small environmental effects and lets villagers maintain their settlements over time. animals can eat or spread vegetation, monsters keep their original environmental actions, and villagers repair farms, roads, lighting, vegetation and village walls.
 
-Revamped ports the mod to Minecraft 26.2 and replaces the original assumption of a small square village with a safer, data-driven planning system intended for custom village structures and large modpacks.
+Revamped ports the mod to Minecraft 26.2 and 26.3 and replaces the original assumption of a small square village with a safer, data-driven planning system meant for custom village structures and large modpacks.
 
-## Features
+## features
 
-- Minecraft 26.2 support on Fabric
-- server-side operation; clients do not need the mod
-- works in dedicated servers and singleplayer integrated servers
-- adaptive boundaries built from meeting, home, and job-site POIs
+- Minecraft 26.2 and 26.3 support on Fabric
+- server-side only; clients don't need the mod
+- works on dedicated servers and in singleplayer
+- adaptive boundaries built from meeting, home and job-site POIs
 - gates and openings where roads cross the planned wall
 - terrain-aware, incremental wall construction
-- original fixed-square wall algorithm available as `legacy` mode
+- the original fixed-square wall algorithm, available as `legacy` mode
 - conservative block replacement with protected-block and foundation tags
-- data-pack profiles for biome, structure, material, and road behavior
+- data-pack profiles for biome, structure, material and road behavior
 - data-pack profession roles for vanilla and modded villagers
 - cached plans instead of recalculating village geometry every villager tick
-- per-village analysis, preview, enable/disable, mode, and rebuild controls
+- per-village analyze, preview, enable/disable, mode and rebuild controls
 
-## Adaptive village walls
+## adaptive village walls
 
-The default `poi_hull` mode expands a boundary around nearby village POIs and scans that boundary for roads. Villagers then build it gradually, one local block at a time.
+the default `poi_hull` mode expands a boundary around nearby village POIs and scans that boundary for roads. villagers then build it gradually, one block at a time.
 
-Wall construction keeps Regrowth's original control-block behavior. Unless `key.playerWallControlBlockString` is set to `minecraft:air`, the configured control block must be directly above the village meeting POI. New village chunks receive this block automatically.
+wall construction keeps Regrowth's original control-block behavior. unless `key.playerWallControlBlockString` is set to `minecraft:air`, the configured control block must be directly above the village meeting POI. new village chunks receive this block automatically.
 
-Use `legacy` mode if you prefer the original fixed-square perimeter.
+use `legacy` mode if you prefer the original fixed-square perimeter.
 
-![A villager building an adaptive village wall](https://raw.githubusercontent.com/cairodavila/regrowth-revamped/main/docs/assets/villager-building-wall.gif)
+![a villager building an adaptive village wall](https://raw.githubusercontent.com/cairodavila/regrowth-revamped/main/docs/assets/villager-building-wall.gif)
 
-## Villager actions
+## villager actions
 
-The default villager action string remains `chrwvt`.
+the default villager action string is still `chrwvt`.
 
-| Letter | Action |
+| letter | action |
 | --- | --- |
-| `c` | Clear obstructing natural vegetation |
-| `h` | Let clerics heal people and toolsmiths repair iron golems |
-| `r` | Clear snow and repair likely road gaps |
-| `w` | Build planned village walls and road-crossing gates |
-| `v` | Trim natural leaves and cactus |
-| `t` | Place lighting in dark areas, near farms, and along walls |
+| `c` | clear obstructing grass (flowers are left alone) |
+| `h` | let clerics heal people and toolsmiths repair iron golems |
+| `r` | clear snow and repair likely road gaps |
+| `w` | build planned village walls and road-crossing gates |
+| `v` | trim natural leaves and cactus |
+| `t` | place lighting in dark areas, near farms and along walls |
 
-Farm maintenance and profession-specific flower planting are assigned through profession roles and do not use these letters.
+farm maintenance and profession-specific flower planting are assigned through profession roles and don't use these letters.
 
-## Commands
+## commands
 
-Commands require game-master permission and select the nearest meeting POI within 96 blocks.
+commands need game-master permission and select the nearest meeting POI within 96 blocks.
 
-| Command | Description |
+| command | what it does |
 | --- | --- |
-| `/regrowth village analyze` | Show the selected profile, mode, control state, and plan size |
-| `/regrowth village preview` | Display the planned boundary with particles |
-| `/regrowth village preview walls` | Alias for the boundary preview |
-| `/regrowth village enable` | Resume road and wall work |
-| `/regrowth village disable` | Pause road and wall work |
-| `/regrowth village mode default` | Use the profile's configured mode |
-| `/regrowth village mode adaptive` | Use the POI-derived boundary |
-| `/regrowth village mode legacy` | Use the fixed-square boundary |
-| `/regrowth village rebuild` | Discard and recalculate the cached plan |
+| `/regrowth village analyze` | show the selected profile, mode, control state and plan size |
+| `/regrowth village preview` | display the planned boundary with particles |
+| `/regrowth village preview walls` | alias for the boundary preview |
+| `/regrowth village enable` | resume road and wall work |
+| `/regrowth village disable` | pause road and wall work |
+| `/regrowth village mode default` | use the profile's configured mode |
+| `/regrowth village mode adaptive` | use the POI-derived boundary |
+| `/regrowth village mode legacy` | use the fixed-square boundary |
+| `/regrowth village rebuild` | discard and recalculate the cached plan |
 
-## Requirements
+## requirements
 
-- Minecraft 26.2
-- Java 25
-- Fabric Loader 0.19.3 or newer
-- [Fabric API](https://modrinth.com/mod/fabric-api) 0.158.0+26.2 or a compatible release
+| Minecraft | Fabric API | Fabric Loader | Java |
+| --- | --- | --- | --- |
+| 26.3 | 0.165.2+26.3 or newer | 0.19.3 or newer | 25 |
+| 26.2 | 0.161.0+26.2 or newer | 0.19.3 or newer | 25 |
 
-Fabric API must also be listed as a required dependency on each version.
+pick the file that matches your Minecraft version; its version number ends in it, like `1.1.0+26.3`. [Fabric API](https://modrinth.com/mod/fabric-api) is a required dependency.
 
-## Installation
+## installation
 
-1. Install Fabric Loader and Fabric API.
-2. Place the Regrowth: Revamped JAR in the server's `mods` directory.
-3. Start the server once to generate `config/regrowthconfig.properties`.
+1. install Fabric Loader and Fabric API.
+2. place the Regrowth: Revamped JAR in the server's `mods` directory.
+3. start the server once to generate `config/regrowthconfig.properties`.
 
-For singleplayer, place the JAR in the instance's `mods` directory. The mod runs through the integrated server.
+for singleplayer, place the JAR in the instance's `mods` directory. the mod runs through the integrated server.
 
-> Villagers can change roads and construct walls. Back up an existing world, or test on a copy, before adding the mod to a long-running save.
+> villagers can change roads and build walls. back up an existing world, or try the mod on a copy, before adding it to a long-running save.
 
-## Data-pack integration
+## data-pack integration
 
-Village profiles:
+village profiles:
 
 ```text
 data/<namespace>/regrowth/village_profiles/*.json
 ```
 
-Profession roles:
+profession roles:
 
 ```text
 data/<namespace>/regrowth/profession_roles/*.json
 ```
 
-Available safety and material tags:
+safety and material tags:
 
 - `regrowth:wall_foundations`
 - `regrowth:wall_replaceable`
@@ -105,31 +105,32 @@ Available safety and material tags:
 - `regrowth:village_roads`
 - `regrowth:protected_from_villagers`
 
-Block entities are always protected. Other mods can append blocks to these tags without adding a Java dependency.
+block entities are always protected. other mods can append blocks to these tags without adding a Java dependency.
 
-The complete profile format is documented in the [adaptive villages guide](https://github.com/cairodavila/regrowth-revamped/blob/main/docs/adaptive-villages.md).
+the full profile format is in the [adaptive villages guide](https://github.com/cairodavila/regrowth-revamped/blob/main/docs/adaptive-villages.md).
 
-## Source and issues
+## source and issues
 
-- [Source code](https://github.com/cairodavila/regrowth-revamped)
-- [Issue tracker](https://github.com/cairodavila/regrowth-revamped/issues)
+- [source code](https://github.com/cairodavila/regrowth-revamped)
+- [issue tracker](https://github.com/cairodavila/regrowth-revamped/issues)
+- [changelog](https://github.com/cairodavila/regrowth-revamped/blob/main/CHANGELOG.md)
 
-Please report Revamped-specific issues here rather than on the original project's tracker.
+please report Revamped-specific issues there rather than on the original project's tracker.
 
-## Credits
+## credits
 
 - MacTso and Lupicus — original Regrowth design and implementation
 - Cairo D'Avila — current Fabric ports and adaptive village work
 
-Original project:
+original project:
 
 - [GitHub](https://github.com/mactso/Regrowth)
 - [CurseForge](https://www.curseforge.com/minecraft/mc-mods/regrowth)
 
-## License
+## license
 
-Regrowth: Revamped is distributed under the [MIT License](https://github.com/cairodavila/regrowth-revamped/blob/main/LICENSE). The original copyright and permission notice are preserved in the source repository and packaged JAR.
+Regrowth: Revamped is distributed under the [MIT license](https://github.com/cairodavila/regrowth-revamped/blob/main/LICENSE). the original copyright and permission notice are preserved in the source repository and packaged JAR.
 
 ## AI disclosure
 
-AI-assisted coding and editing tools were used during the port, adaptive-village implementation, testing, and preparation of this project page. The gameplay GIF above is an in-game screen recording.
+AI-assisted coding and editing tools were used during the port, the adaptive-village implementation, testing, and the preparation of this page. the gameplay GIF above is an in-game screen recording.

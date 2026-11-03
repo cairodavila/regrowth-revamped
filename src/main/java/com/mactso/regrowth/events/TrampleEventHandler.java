@@ -11,26 +11,22 @@ import net.minecraft.world.entity.npc.villager.Villager;
 
 public class TrampleEventHandler {
 
+	// Villager levels run novice=1 .. master=5; experts and masters no longer trample their crops.
+	private static final int EXPERT_LEVEL = 4;
 
 	public static boolean handleTrampleEvent(Entity entity) {
 
 		BlockPos pos = entity.blockPosition();
-		Utility.debugMsg(1, pos, "Enter handleTrampleEvent");
-		
-		if (entity instanceof Villager ve) {
-			if (ProfessionRoleManager.hasRole(ve, VillageProfessionRole.FARM)
-					&& ve.getVillagerData().level() > 3) {
-				Utility.debugMsg(1, pos, "Villager is L3 farmer");
-				return true;
-			}
+		if (entity instanceof Villager ve
+				&& ProfessionRoleManager.hasRole(ve, VillageProfessionRole.FARM)
+				&& ve.getVillagerData().level() >= EXPERT_LEVEL) {
+			Utility.debugMsg(1, pos, "Farmland trample cancelled: expert farmer.");
+			return true;
 		}
-		if ((entity instanceof ServerPlayer spe)) {
-			if (spe.isCreative()) {
-				return true;
-			}
-			Utility.debugMsg(1, pos, "FarmlandTrampleCancelled");
+		if (entity instanceof ServerPlayer player && player.isCreative()) {
+			Utility.debugMsg(1, pos, "Farmland trample cancelled: creative player.");
+			return true;
 		}
-
 		return false;
 	}
 	

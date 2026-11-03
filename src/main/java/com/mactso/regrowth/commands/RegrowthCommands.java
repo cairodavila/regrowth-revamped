@@ -63,7 +63,6 @@ public final class RegrowthCommands {
 
 	public static int setDebugLevel(int newDebugLevel) {
 		MyConfig.setDebugLevel(newDebugLevel);
-		MyConfig.pushDebugLevel();
 		return 1;
 	}
 

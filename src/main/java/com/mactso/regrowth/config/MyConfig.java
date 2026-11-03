@@ -1,12 +1,11 @@
 package com.mactso.regrowth.config;
 
-import java.util.HashSet;
+import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.mactso.regrowth.Main;
-import com.mactso.regrowth.utility.Utility;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -18,7 +17,7 @@ public class MyConfig {
 
 	private static final Logger LOGGER = LogManager.getLogger();
 
-	public static SimpleConfig CONFIG;
+	private static SimpleConfig CONFIG;
 	private static ModConfigProvider configs;
 	private static final String defaultActionMobList = "minecraft:cow,both,300.0;" + "minecraft:horse,eat,180.0;" + "minecraft:donkey,eat,180.0;"
 			+ "minecraft:sheep,eat,120.0;" + "minecraft:pig,reforest,450.0;" + "minecraft:bee,grow,500.0;"
@@ -52,19 +51,12 @@ public class MyConfig {
 		return debugLevel;
 	}
 
-	public static int getaDebugLevel() {
-		return getDebugLevel();
-	}
-	
 	public static void setDebugLevel(int debugLevel) {
 		MyConfig.debugLevel = debugLevel;
 	}
 
 	public static boolean getEatingHeals() {
-		if (eatingHeals.equals("true")) {
-			return true;
-		}
-		return false;
+		return Boolean.parseBoolean(eatingHeals);
 	}
 
 	public static Block getPlayerWallControlBlock() {
@@ -104,8 +96,8 @@ public class MyConfig {
 		return mushroomMaxTemp;
 	}
 
-	public static int debugLevel;
-	public static String eatingHeals;
+	private static int debugLevel;
+	private static String eatingHeals = "true";
 	private static int torchLightLevel;
 	private static int mushroomDensity;
 	private static int mushroomXDensity;
@@ -113,33 +105,12 @@ public class MyConfig {
 	private static double mushroomMinTemp;
 	private static double mushroomMaxTemp;
 	private static String playerWallControlBlockString;
-	public static Block playerWallControlBlock;
+	private static Block playerWallControlBlock = Blocks.COBBLESTONE_WALL;
 
-	private static String actionMobList;
-	private static String wallblockList;
-	private static String wallFoundationsList;
-
-	public static HashSet<String> getModStringSet(String[] values) {
-		HashSet<String> returnset = new HashSet<>();
-		// Collection<ModContainer> loadedMods= FabricLoader.getAllMods(); error static
-		// calling non-static.
-		HashSet<String> loadedset = new HashSet<>();
-		loadedset.add("regrowth");
-		loadedset.add("test");
-
-		for (String s : loadedset) {
-			String s2 = s.trim().toLowerCase();
-			if (!s2.isEmpty()) {
-				if (!returnset.contains(s2)) {
-					returnset.add(s2);
-				} else {
-					LOGGER.warn("regrowth includedReportModsSet entry : " + s2
-							+ " is not a valid current loaded forge mod.");
-				}
-			}
-		}
-		return returnset;
-	}
+	// Defaults keep the parsers safe if an entity ticks before the server-started config load.
+	private static String actionMobList = defaultActionMobList;
+	private static String wallblockList = defaultWallblockList;
+	private static String wallFoundationsList = defaultWallFoundationsList;
 
 	public static void registerConfigs() {
 		configs = new ModConfigProvider();
@@ -176,16 +147,8 @@ public class MyConfig {
 		mushroomMaxTemp = CONFIG.getOrDefault("key.mushroomMaxTemp", 1.2);
 		playerWallControlBlockString = CONFIG.getOrDefault("key.playerWallControlBlockString",
 				"minecraft:cobblestone_wall");
-		playerWallControlBlock = Blocks.COBBLESTONE_WALL; // default value if fail.
-		try {
-			Identifier id = Identifier.parse(playerWallControlBlockString);
-			playerWallControlBlock  = BuiltInRegistries.BLOCK.getValue(id);
-		}
-		catch (Exception e) {
-			Utility.debugMsg(0, "playerWallControlBlockString: '" + playerWallControlBlockString + "' is invalid");
-		}
-		
-		// TODO This is duplicated from above.  Is that unavoidable?
+		playerWallControlBlock = parseControlBlock(playerWallControlBlockString);
+
 		actionMobList = CONFIG.getOrDefault("key.actionMobList", defaultActionMobList);
 		RegrowthEntitiesManager.regrowthMobInit();
 
@@ -199,9 +162,15 @@ public class MyConfig {
 		LOGGER.info("All " + configs.getConfigsList().size() + " have been set properly");
 	}
 
-	public static void pushDebugLevel() {
-		// TODO Auto-generated method stub
-		// someday...
+	// An unknown id must not resolve to air: air means "no control block required".
+	private static Block parseControlBlock(String blockId) {
+		Optional<Block> block = Optional.ofNullable(Identifier.tryParse(blockId.trim()))
+				.flatMap(BuiltInRegistries.BLOCK::getOptional);
+		if (block.isEmpty()) {
+			LOGGER.warn("playerWallControlBlockString '{}' is not a known block; using minecraft:cobblestone_wall",
+					blockId);
+		}
+		return block.orElse(Blocks.COBBLESTONE_WALL);
 	}
 
 }

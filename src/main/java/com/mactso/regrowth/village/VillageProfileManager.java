@@ -14,15 +14,11 @@ import com.google.gson.JsonParser;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.level.levelgen.structure.Structure;
 
 public final class VillageProfileManager {
 
@@ -75,26 +71,9 @@ public final class VillageProfileManager {
 		if (selectors.isEmpty()) {
 			return true;
 		}
-		HolderLookup.RegistryLookup<Structure> structures = level.registryAccess()
-				.lookupOrThrow(Registries.STRUCTURE);
-		for (ResourceSelector selector : selectors) {
-			if (selector.tag()) {
-				TagKey<Structure> tag = TagKey.create(Registries.STRUCTURE, selector.identifier());
-				if (level.structureManager().getStructureWithPieceAt(meetingPoint, tag).isValid()) {
-					return true;
-				}
-				continue;
-			}
-			ResourceKey<Structure> key = ResourceKey.create(Registries.STRUCTURE, selector.identifier());
-			if (structures.get(key)
-					.map(Holder.Reference::value)
-					.map(structure -> level.structureManager()
-							.getStructureWithPieceAt(meetingPoint, structure).isValid())
-					.orElse(false)) {
-				return true;
-			}
-		}
-		return false;
+		return selectors.stream().anyMatch(selector -> level.structureManager()
+				.getStructureWithPieceAt(meetingPoint, structure -> selector.matches(structure, Registries.STRUCTURE))
+				.isValid());
 	}
 
 	private static Identifier profileId(Identifier resourceId) {

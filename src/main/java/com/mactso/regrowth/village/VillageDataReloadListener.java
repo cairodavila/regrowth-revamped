@@ -2,18 +2,13 @@ package com.mactso.regrowth.village;
 
 import com.mactso.regrowth.Main;
 
-import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 
-public final class VillageDataReloadListener implements SimpleSynchronousResourceReloadListener {
+public final class VillageDataReloadListener implements ResourceManagerReloadListener {
 
-	private static final Identifier ID = Identifier.fromNamespaceAndPath(Main.MOD_ID, "village_data");
-
-	@Override
-	public Identifier getFabricId() {
-		return ID;
-	}
+	public static final Identifier ID = Identifier.fromNamespaceAndPath(Main.MOD_ID, "village_data");
 
 	@Override
 	public void onResourceManagerReload(ResourceManager resourceManager) {
