@@ -8,6 +8,8 @@ Regrowth gives creatures small environmental effects and lets villagers maintain
 
 Revamped ports the mod to Minecraft 26.2 and 26.3 and replaces the original assumption of a small square village with a safer, data-driven planning system meant for custom village structures and large modpacks.
 
+[changelog](https://github.com/cairodavila/regrowth-revamped/blob/main/CHANGELOG.md) · [adaptive villages guide](https://github.com/cairodavila/regrowth-revamped/blob/main/docs/adaptive-villages.md) · [source code](https://github.com/cairodavila/regrowth-revamped) · [issue tracker](https://github.com/cairodavila/regrowth-revamped/issues)
+
 ## features
 
 - Minecraft 26.2 and 26.3 support on Fabric
