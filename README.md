@@ -38,7 +38,7 @@ the existing animal and monster actions still work the same way.
 
 ## installation
 
-1. download the JAR for your Minecraft version from [Modrinth](https://modrinth.com/mod/regrowth-revamped) or [GitHub releases](https://github.com/cairodavila/regrowth-revamped/releases). the file name ends in the Minecraft version, like `1.1.0+26.3`.
+1. download the JAR for your Minecraft version from [Modrinth](https://modrinth.com/mod/regrowth-revamped). the file name ends in the Minecraft version, like `1.1.0+26.3`.
 2. copy it into the instance's `mods` directory.
 3. start Minecraft once to create `config/regrowthconfig.properties`.
 
