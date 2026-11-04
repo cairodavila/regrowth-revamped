@@ -11,7 +11,7 @@ public record VillageBoundarySettings(
 		long cacheTicks) {
 
 	public static final VillageBoundarySettings DEFAULT = new VillageBoundarySettings(
-			VillageBoundaryMode.ADAPTIVE, 8, 64, 18, 64, 23, 6, 6000);
+			VillageBoundaryMode.ADAPTIVE, 8, 64, 18, 64, 23, 1, 6000);
 
 	public VillageBoundarySettings {
 		mode = mode == null ? VillageBoundaryMode.ADAPTIVE : mode;

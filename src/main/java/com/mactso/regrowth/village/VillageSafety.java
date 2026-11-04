@@ -55,6 +55,19 @@ public final class VillageSafety {
 		return Optional.of(new BoundarySite(ground, buildPosition, false));
 	}
 
+	/** Height of a column's lowest boundary block, or where it would go when nothing is built yet. */
+	public static Optional<Integer> wallBaseY(ServerLevel level, VillageProfile profile, BoundaryNode node) {
+		return boundarySite(level, profile, node).map(site -> {
+			BlockPos base = site.buildPosition();
+			if (site.alreadyBuilt()) {
+				while (isBoundaryBlock(level.getBlockState(base.below()))) {
+					base = base.below();
+				}
+			}
+			return base.getY();
+		});
+	}
+
 	public static boolean crossesRoad(
 			ServerLevel level,
 			VillageProfile profile,

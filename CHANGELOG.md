@@ -2,6 +2,15 @@
 
 every release of Regrowth: Revamped, newest first. versions follow [semver](https://semver.org); each release is built once per supported Minecraft version, marked as build metadata (`1.1.0+26.3`).
 
+## unreleased
+
+### changed
+
+- village walls grow as continuous runs. a villager near the boundary extends a wall segment that's already started before beginning a new one, so the wall no longer appears as scattered single posts.
+- where the ground steps up one or two blocks, the lower wall column is raised to meet its neighbor, so walls stay connected on terraced terrain. bigger drops are left as they are; the cliff is already a barrier.
+- the default `gate_scan_distance` is now 1, so only roads that actually cross the boundary leave a gap. it was 6, which also opened the wall wherever a road ran alongside it.
+- a planned wall node whose ground turns out to be a road is left open, even if its chunk wasn't loaded when the plan was made.
+
 ## 1.1.0 · 2026-11-03
 
 supports Minecraft 26.2 and 26.3.

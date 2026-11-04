@@ -30,6 +30,8 @@ import net.minecraft.world.level.block.state.BlockState;
 public final class VillageService {
 
 	private static final int VILLAGER_BUILD_REACH = 3;
+	// Taller differences are cliffs; they already block mobs, so the wall just ends there.
+	private static final int MAXIMUM_CONNECTOR_STEP = 2;
 	private static final int COMMAND_VILLAGE_RADIUS = 96;
 	private static final int PREVIEW_PARTICLE_LIMIT = 400;
 	private static final int[][] ORTHOGONAL_STEPS = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
@@ -51,25 +53,103 @@ public final class VillageService {
 			return false;
 		}
 		GridPoint villagerPosition = new GridPoint(villager.getBlockX(), villager.getBlockZ());
-		Optional<IndexedBoundaryNode> nearest = village.plan()
-				.nearestBoundary(villagerPosition, VILLAGER_BUILD_REACH);
-		if (nearest.isEmpty() || nearest.get().node().role() == BoundaryRole.OPENING) {
+		Optional<WallWork> work = nextWallWork(level, village, villagerPosition);
+		if (work.isEmpty()) {
 			return false;
 		}
 
-		IndexedBoundaryNode plannedNode = nearest.get();
-		Optional<BoundarySite> site = VillageSafety.boundarySite(level, village.profile(), plannedNode.node());
-		if (site.isEmpty() || site.get().alreadyBuilt()) {
+		WallWork wallWork = work.get();
+		BlockState state = boundaryState(village.profile(), wallWork.node().node());
+		if (!level.setBlock(wallWork.position(), state, Block.UPDATE_ALL)) {
 			return false;
 		}
-
-		BlockState state = boundaryState(village.profile(), plannedNode.node());
-		if (!level.setBlock(site.get().buildPosition(), state, Block.UPDATE_ALL)) {
-			return false;
-		}
-		placeBoundaryTorch(level, village, plannedNode, site.get(), regrowthActions);
-		moveVillagerAwayFromBoundary(villager, plannedNode.node());
+		placeBoundaryTorch(level, village, wallWork.node(), wallWork.position(), regrowthActions);
+		moveVillagerAwayFromBoundary(villager, wallWork.node().node());
 		return true;
+	}
+
+	/**
+	 * Picks the block to place within reach. Extending an existing wall segment comes first, so the wall
+	 * grows as continuous runs instead of scattered posts.
+	 */
+	private static Optional<WallWork> nextWallWork(
+			ServerLevel level,
+			VillageContext village,
+			GridPoint villagerPosition) {
+		WallWork firstUnconnected = null;
+		for (IndexedBoundaryNode node : village.plan().boundaryWithin(villagerPosition, VILLAGER_BUILD_REACH)) {
+			if (node.node().role() == BoundaryRole.OPENING) {
+				continue;
+			}
+			Optional<BlockPos> position = nextBlockPosition(level, village, node);
+			if (position.isEmpty()) {
+				continue;
+			}
+			WallWork work = new WallWork(node, position.get());
+			if (isBuilt(level, village, village.plan().neighbor(node.index(), -1))
+					|| isBuilt(level, village, village.plan().neighbor(node.index(), 1))) {
+				return Optional.of(work);
+			}
+			if (firstUnconnected == null) {
+				firstUnconnected = work;
+			}
+		}
+		return Optional.ofNullable(firstUnconnected);
+	}
+
+	/** The next block this column needs: its first block, a step connector on top, or nothing. */
+	private static Optional<BlockPos> nextBlockPosition(
+			ServerLevel level,
+			VillageContext village,
+			IndexedBoundaryNode node) {
+		Optional<BoundarySite> found = VillageSafety.boundarySite(level, village.profile(), node.node());
+		if (found.isEmpty()) {
+			return Optional.empty();
+		}
+		BoundarySite site = found.get();
+		boolean isWall = node.node().role() == BoundaryRole.WALL;
+		if (!site.alreadyBuilt()) {
+			// A road the plan missed (its chunk was unloaded) stays open rather than walled off.
+			if (isWall && VillageSafety.isRoad(level.getBlockState(site.ground()), village.profile())) {
+				return Optional.empty();
+			}
+			return Optional.of(site.buildPosition());
+		}
+		if (!isWall || site.buildPosition().getY() >= connectorTopY(level, village, node)) {
+			return Optional.empty();
+		}
+		BlockPos above = site.buildPosition().above();
+		BlockState aboveState = level.getBlockState(above);
+		// The torch gets put back on the new top by placeBoundaryTorch.
+		if (!aboveState.isAir() && !aboveState.is(Blocks.TORCH)) {
+			return Optional.empty();
+		}
+		return Optional.of(above);
+	}
+
+	/** Walls only connect at the same height, so a column below a step rises to its neighbor's base. */
+	private static int connectorTopY(ServerLevel level, VillageContext village, IndexedBoundaryNode node) {
+		int baseY = VillageSafety.wallBaseY(level, village.profile(), node.node()).orElse(Integer.MAX_VALUE);
+		int topY = baseY;
+		for (int offset : new int[] { -1, 1 }) {
+			IndexedBoundaryNode neighbor = village.plan().neighbor(node.index(), offset);
+			if (neighbor.node().role() != BoundaryRole.WALL) {
+				continue;
+			}
+			Optional<Integer> neighborBaseY = VillageSafety.wallBaseY(level, village.profile(), neighbor.node());
+			if (neighborBaseY.isPresent()
+					&& neighborBaseY.get() > topY
+					&& neighborBaseY.get() - baseY <= MAXIMUM_CONNECTOR_STEP) {
+				topY = neighborBaseY.get();
+			}
+		}
+		return topY;
+	}
+
+	private static boolean isBuilt(ServerLevel level, VillageContext village, IndexedBoundaryNode node) {
+		return VillageSafety.boundarySite(level, village.profile(), node.node())
+				.map(BoundarySite::alreadyBuilt)
+				.orElse(false);
 	}
 
 	public static boolean improveRoad(Villager villager) {
@@ -177,6 +257,9 @@ public final class VillageService {
 		return level.getBlockState(meetingPoint.above()).is(controlBlock);
 	}
 
+	private record WallWork(IndexedBoundaryNode node, BlockPos position) {
+	}
+
 	private static BlockState boundaryState(VillageProfile profile, BoundaryNode node) {
 		if (node.role() != BoundaryRole.GATE) {
 			return profile.walls().wallBlock().orElse(Blocks.COBBLESTONE_WALL).defaultBlockState();
@@ -193,7 +276,7 @@ public final class VillageService {
 			ServerLevel level,
 			VillageContext village,
 			IndexedBoundaryNode plannedNode,
-			BoundarySite site,
+			BlockPos placedPosition,
 			String regrowthActions) {
 		int spacing = village.profile().walls().torchSpacing();
 		if (!regrowthActions.contains("t")
@@ -202,7 +285,7 @@ public final class VillageService {
 				|| plannedNode.index() % spacing != 0) {
 			return;
 		}
-		BlockPos torchPosition = site.buildPosition().above();
+		BlockPos torchPosition = placedPosition.above();
 		if (level.getBlockState(torchPosition).isAir()) {
 			level.setBlock(torchPosition, Blocks.TORCH.defaultBlockState(), Block.UPDATE_ALL);
 		}

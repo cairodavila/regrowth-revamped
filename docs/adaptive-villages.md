@@ -15,7 +15,7 @@ Regrowth's adaptive village system keeps road and wall improvements while avoidi
 
 `VillagePlanManager` owns cached plans keyed by dimension and meeting point. a plan holds an ordered boundary and marks each node as wall, gate or opening. adaptive boundaries are the expanded convex hull of nearby POIs, clamped by the profile radii. legacy plans keep the original square boundary. when every node of a boundary crosses a road, the whole boundary is left open.
 
-`VillageService` is the adapter between the plans and Minecraft. it gathers POIs, selects profiles, resolves terrain and tagged materials, repairs roads, places planned wall pieces, renders previews, and reads persistent village controls. geometry stays separate so it can be unit-tested without a running server.
+`VillageService` is the adapter between the plans and Minecraft. it gathers POIs, selects profiles, resolves terrain and tagged materials, repairs roads, places planned wall pieces (extending started segments first, and raising a column to meet a neighbor one or two blocks higher), renders previews, and reads persistent village controls. geometry stays separate so it can be unit-tested without a running server.
 
 villagers still work incrementally. one action repairs or places at most one local block; plans describe where work is allowed rather than applying a whole village in one operation.
 
@@ -36,7 +36,7 @@ profiles are server-data JSON resources under `data/<namespace>/regrowth/village
     "scan_radius": 64,
     "minimum_radius": 18,
     "maximum_radius": 64,
-    "gate_scan_distance": 6,
+    "gate_scan_distance": 1,
     "cache_ticks": 6000
   },
   "walls": {

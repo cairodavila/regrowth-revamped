@@ -78,6 +78,20 @@ class VillageGeometryPlannerTest {
 		assertEquals(walls.boundary().size(), gated.openingCount());
 	}
 
+	@Test
+	void boundaryWithinIsNearestFirstAndNeighborsWrapAround() {
+		VillageBoundarySettings settings = new VillageBoundarySettings(
+				VillageBoundaryMode.LEGACY, 8, 64, 18, 64, 8, 1, 6000);
+		VillagePlan plan = VillageGeometryPlanner.create(new GridPoint(0, 0), List.of(), settings);
+
+		var nearby = plan.boundaryWithin(new GridPoint(0, -10), 3);
+
+		assertEquals(new GridPoint(0, -8), nearby.getFirst().node().position());
+		assertTrue(nearby.stream().allMatch(node -> node.node().position().distanceSquared(new GridPoint(0, -10)) <= 9));
+		assertEquals(plan.boundary().getLast(), plan.neighbor(0, -1).node());
+		assertEquals(0, plan.neighbor(plan.boundary().size() - 1, 1).index());
+	}
+
 	private static void assertConnectedLoop(VillagePlan plan) {
 		for (int index = 0; index < plan.boundary().size(); index++) {
 			GridPoint current = plan.boundary().get(index).position();
