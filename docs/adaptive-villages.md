@@ -108,7 +108,7 @@ block entities are always protected, whatever the tags say. other mods and modpa
 
 - `/regrowth village analyze`: report the nearest village's representative bell, profile, mode, POI count, boundary size, gate count and control state.
 - `/regrowth village preview` (or `/regrowth village preview walls`): show the planned wall, openings and gates with particles, without changing blocks.
-- `/regrowth village enable|disable`: persistently allow or pause road and wall work for the nearest village.
+- `/regrowth village enable|disable`: persistently allow or pause road, wall and lamp post work for the nearest village.
 - `/regrowth village mode default|adaptive|legacy`: choose a persistent per-village mode override.
 - `/regrowth village rebuild`: invalidate and recalculate the nearest village plan.
 
