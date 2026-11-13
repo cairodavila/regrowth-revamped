@@ -73,7 +73,7 @@ commands need game-master permission and select the nearest meeting POI within 9
 | 26.3 | 0.165.2+26.3 or newer | 0.19.3 or newer | 25 |
 | 26.2 | 0.161.0+26.2 or newer | 0.19.3 or newer | 25 |
 
-pick the file that matches your Minecraft version; its version number ends in it, like `1.1.0+26.3`. [Fabric API](https://modrinth.com/mod/fabric-api) is a required dependency.
+pick the file that matches your Minecraft version; its version number ends in it, like `1.2.0+26.3`. [Fabric API](https://modrinth.com/mod/fabric-api) is a required dependency.
 
 ## installation
 

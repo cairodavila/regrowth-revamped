@@ -1,8 +1,10 @@
 # changelog
 
-every release of Regrowth: Revamped, newest first. versions follow [semver](https://semver.org); each release is built once per supported Minecraft version, marked as build metadata (`1.1.0+26.3`).
+every release of Regrowth: Revamped, newest first. versions follow [semver](https://semver.org); each release is built once per supported Minecraft version, marked as build metadata (`1.2.0+26.3`).
 
-## unreleased
+## 1.2.0 · 2026-11-12
+
+supports Minecraft 26.2 and 26.3.
 
 ### changed
 

@@ -38,7 +38,7 @@ the existing animal and monster actions still work the same way.
 
 ## installation
 
-1. download the JAR for your Minecraft version from [Modrinth](https://modrinth.com/mod/regrowth-revamped). the file name ends in the Minecraft version, like `1.1.0+26.3`.
+1. download the JAR for your Minecraft version from [Modrinth](https://modrinth.com/mod/regrowth-revamped). the file name ends in the Minecraft version, like `1.2.0+26.3`.
 2. copy it into the instance's `mods` directory.
 3. start Minecraft once to create `config/regrowthconfig.properties`.
 
@@ -144,7 +144,7 @@ block.performBonemeal(level, level.getRandom(), pos, state, BonemealSource.MOB);
 
 ## versioning
 
-Revamped uses semantic versioning. every release is built once per Minecraft version, and the Minecraft version is added as build metadata: `1.1.0+26.2` and `1.1.0+26.3` are the same release. the [changelog](CHANGELOG.md) lists every release.
+Revamped uses semantic versioning. every release is built once per Minecraft version, and the Minecraft version is added as build metadata: `1.2.0+26.2` and `1.2.0+26.3` are the same release. the [changelog](CHANGELOG.md) lists every release.
 
 ## credits
 
