@@ -224,11 +224,12 @@ public final class VillageService {
 	}
 
 	public static void setEnabled(ServerLevel level, BlockPos meetingPoint, boolean enabled) {
-		VillageControlSavedData.get(level).setEnabled(meetingPoint.asLong(), enabled);
+		VillageControlSavedData.get(level).setEnabled(
+				VillagePlanManager.village(level, meetingPoint).bellKeys(), enabled);
 	}
 
 	public static void setMode(ServerLevel level, BlockPos meetingPoint, VillageModeOverride mode) {
-		VillageControlSavedData.get(level).setMode(meetingPoint.asLong(), mode);
+		VillageControlSavedData.get(level).setMode(VillagePlanManager.village(level, meetingPoint).bellKeys(), mode);
 		VillagePlanManager.invalidate(level, meetingPoint);
 	}
 

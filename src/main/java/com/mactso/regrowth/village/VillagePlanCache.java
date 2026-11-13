@@ -4,12 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public final class VillagePlanCache {
+/** Values per dimension and bell that expire after a number of ticks. */
+public final class VillagePlanCache<V> {
 
-	private final Map<VillageKey, CachedPlan> plans = new HashMap<>();
+	private final Map<VillageKey, CachedPlan<V>> plans = new HashMap<>();
 
-	public Optional<VillagePlan> get(VillageKey key, long gameTime) {
-		CachedPlan cachedPlan = plans.get(key);
+	public Optional<V> get(VillageKey key, long gameTime) {
+		CachedPlan<V> cachedPlan = plans.get(key);
 		if (cachedPlan == null) {
 			return Optional.empty();
 		}
@@ -20,8 +21,8 @@ public final class VillagePlanCache {
 		return Optional.of(cachedPlan.plan());
 	}
 
-	public void put(VillageKey key, VillagePlan plan, long gameTime, long cacheTicks) {
-		plans.put(key, new CachedPlan(plan, gameTime + cacheTicks));
+	public void put(VillageKey key, V plan, long gameTime, long cacheTicks) {
+		plans.put(key, new CachedPlan<>(plan, gameTime + cacheTicks));
 	}
 
 	public void invalidate(VillageKey key) {
@@ -39,6 +40,6 @@ public final class VillagePlanCache {
 	public record VillageKey(String dimension, long meetingPoint) {
 	}
 
-	private record CachedPlan(VillagePlan plan, long expiresAt) {
+	private record CachedPlan<V>(V plan, long expiresAt) {
 	}
 }

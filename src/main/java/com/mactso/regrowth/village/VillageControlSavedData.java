@@ -3,6 +3,7 @@ package com.mactso.regrowth.village;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.mactso.regrowth.Main;
 import com.mojang.serialization.Codec;
@@ -45,25 +46,33 @@ public final class VillageControlSavedData extends SavedData {
 		return level.getDataStorage().computeIfAbsent(TYPE);
 	}
 
-	public VillageControl control(long meetingPoint) {
-		return controls.getOrDefault(meetingPoint, VillageControl.DEFAULT);
+	/**
+	 * The control of a village, given its bells with the representative first. An entry on another of its
+	 * bells is still honoured: 1.1.0 kept one per bell, and commands could have written it to any of them.
+	 */
+	public VillageControl control(List<Long> bells) {
+		return bells.stream()
+				.map(controls::get)
+				.filter(Objects::nonNull)
+				.findFirst()
+				.orElse(VillageControl.DEFAULT);
 	}
 
-	public void setEnabled(long meetingPoint, boolean enabled) {
-		VillageControl current = control(meetingPoint);
-		store(meetingPoint, new VillageControl(enabled, current.mode()));
+	public void setEnabled(List<Long> bells, boolean enabled) {
+		VillageControl current = control(bells);
+		store(bells, new VillageControl(enabled, current.mode()));
 	}
 
-	public void setMode(long meetingPoint, VillageModeOverride mode) {
-		VillageControl current = control(meetingPoint);
-		store(meetingPoint, new VillageControl(current.enabled(), mode));
+	public void setMode(List<Long> bells, VillageModeOverride mode) {
+		VillageControl current = control(bells);
+		store(bells, new VillageControl(current.enabled(), mode));
 	}
 
-	private void store(long meetingPoint, VillageControl control) {
-		if (control.equals(VillageControl.DEFAULT)) {
-			controls.remove(meetingPoint);
-		} else {
-			controls.put(meetingPoint, control);
+	/** Keeps the village's control on its representative bell only. */
+	private void store(List<Long> bells, VillageControl control) {
+		bells.forEach(controls::remove);
+		if (!control.equals(VillageControl.DEFAULT)) {
+			controls.put(bells.getFirst(), control);
 		}
 		setDirty();
 	}

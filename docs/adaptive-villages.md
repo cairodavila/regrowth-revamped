@@ -8,12 +8,13 @@ Regrowth's adaptive village system keeps road and wall improvements while avoidi
 - keep the original fixed-square behavior available as `legacy` mode.
 - never overwrite buildings, block entities, or blocks outside explicit replacement tags.
 - let data packs describe biome and structure profiles, materials and profession roles.
-- cache plans per dimension and meeting point instead of planning on every villager tick.
+- give each village one boundary, however many bells it has.
+- cache plans per dimension and village instead of planning on every villager tick.
 - give operators analyze, preview, enable/disable, mode and rebuild controls.
 
 ## runtime model
 
-`VillagePlanManager` owns cached plans keyed by dimension and meeting point. a plan holds an ordered boundary and marks each node as wall, gate or opening. adaptive boundaries are the expanded convex hull of nearby POIs, clamped by the profile radii. legacy plans keep the original square boundary. when every node of a boundary crosses a road, the whole boundary is left open.
+`VillagePlanManager` owns cached plans keyed by dimension and village. bells within 64 blocks of each other, horizontally and through chains of bells, belong to one village. its plan, controls and commands are keyed by one representative bell: the bell nearest the centroid of the village POIs around all of its bells, with ties going to the smallest coordinates. a village with one bell is keyed by that bell. villagers remembering any of its bells, or a bell that was removed, use the representative's plan. the grouping is cached alongside the plans, so it's only recalculated when they expire or a command invalidates them. a plan holds an ordered boundary and marks each node as wall, gate or opening. adaptive boundaries are the expanded convex hull of nearby POIs, clamped by the profile radii. legacy plans keep the original square boundary. when every node of a boundary crosses a road, the whole boundary is left open.
 
 `VillageService` is the adapter between the plans and Minecraft. it gathers POIs, selects profiles, resolves terrain and tagged materials, repairs roads, places planned wall pieces (extending started segments first, and raising a column to meet a neighbor one or two blocks higher), renders previews, and reads persistent village controls. geometry stays separate so it can be unit-tested without a running server.
 
@@ -86,15 +87,15 @@ block entities are always protected, whatever the tags say. other mods and modpa
 
 ## commands
 
-- `/regrowth village analyze`: report the nearest village's profile, mode, POI count, boundary size, gate count and control state.
+- `/regrowth village analyze`: report the nearest village's representative bell, profile, mode, POI count, boundary size, gate count and control state.
 - `/regrowth village preview` (or `/regrowth village preview walls`): show the planned wall, openings and gates with particles, without changing blocks.
 - `/regrowth village enable|disable`: persistently allow or pause road and wall work for the nearest village.
 - `/regrowth village mode default|adaptive|legacy`: choose a persistent per-village mode override.
 - `/regrowth village rebuild`: invalidate and recalculate the nearest village plan.
 
-these commands need game-master permission and a meeting POI near the player running them.
+these commands need game-master permission and a meeting POI near the player running them. they act on the village of the nearest bell, keyed by its representative bell. a setting stored on another bell of the village, as 1.1.0 did, still applies until the village's setting is changed.
 
-wall construction also keeps Regrowth's physical opt-in. unless `key.playerWallControlBlockString` is set to `minecraft:air`, the configured control block must be directly above the village meeting POI. new village chunks receive the control block automatically, as before. removing it pauses walls without stopping road work; the per-village `disable` command pauses both. an unknown block id falls back to `minecraft:cobblestone_wall` and logs a warning, so a typo never turns the opt-in off.
+wall construction also keeps Regrowth's physical opt-in. unless `key.playerWallControlBlockString` is set to `minecraft:air`, the configured control block must be directly above the village's representative bell, the one `analyze` reports. a block above any other bell of the same village doesn't count. new village chunks receive the control block automatically, as before. removing it pauses walls without stopping road work; the per-village `disable` command pauses both. an unknown block id falls back to `minecraft:cobblestone_wall` and logs a warning, so a typo never turns the opt-in off.
 
 ## compatibility strategy
 
