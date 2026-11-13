@@ -92,6 +92,47 @@ class VillageGeometryPlannerTest {
 		assertEquals(0, plan.neighbor(plan.boundary().size() - 1, 1).index());
 	}
 
+	@Test
+	void gatesOnlyOpenWhereTheNodesOwnGroundIsRoadByDefault() {
+		assertEquals(0, VillageBoundarySettings.DEFAULT.gateScanDistance());
+		assertEquals(0, new VillageBoundarySettings(VillageBoundaryMode.ADAPTIVE, 8, 64, 18, 64, 23, -2, 6000)
+				.gateScanDistance());
+	}
+
+	@Test
+	void everyDiagonalPathOutOfTheVillageCrossesABoundaryNode() {
+		VillagePlan plan = VillageGeometryPlanner.create(
+				new GridPoint(0, 0),
+				List.of(new GridPoint(30, 7), new GridPoint(-11, 24), new GridPoint(5, -33)),
+				VillageBoundarySettings.DEFAULT);
+		java.util.Set<GridPoint> nodes = new java.util.HashSet<>();
+		plan.boundary().forEach(node -> nodes.add(node.position()));
+
+		for (int[] step : new int[][] { { 1, 1 }, { 1, -1 }, { -1, 1 }, { -1, -1 } }) {
+			for (int start = -3; start <= 3; start++) {
+				boolean crossed = false;
+				for (int distance = 0; distance < 120 && !crossed; distance++) {
+					crossed = nodes.contains(new GridPoint(start + step[0] * distance, step[1] * distance));
+				}
+				assertTrue(crossed, "a diagonal path from x=" + start + " slipped through the boundary");
+			}
+		}
+	}
+
+	@Test
+	void openingWidthsCountRunsOfGatesAndOpenings() {
+		VillageBoundarySettings settings = new VillageBoundarySettings(
+				VillageBoundaryMode.LEGACY, 8, 64, 18, 64, 4, 0, 6000);
+		VillagePlan walls = VillageGeometryPlanner.create(new GridPoint(0, 0), List.of(), settings);
+
+		VillagePlan gated = VillageGeometryPlanner.markRoadGates(walls,
+				node -> node.position().z() == -8 && Math.abs(node.position().x()) <= 1
+						|| node.position().x() == 8 && node.position().z() == 0);
+
+		assertEquals(List.of(5, 3), gated.openingWidths());
+		assertEquals(List.of(), walls.openingWidths());
+	}
+
 	private static void assertConnectedLoop(VillagePlan plan) {
 		for (int index = 0; index < plan.boundary().size(); index++) {
 			GridPoint current = plan.boundary().get(index).position();

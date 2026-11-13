@@ -10,7 +10,7 @@ supports Minecraft 26.2 and 26.3.
 
 - village walls grow as continuous runs. a villager near the boundary extends a wall segment that's already started before beginning a new one, so the wall no longer appears as scattered single posts.
 - where the ground steps up one or two blocks, the lower wall column is raised to meet its neighbor, so walls stay connected on terraced terrain. bigger drops are left as they are; the cliff is already a barrier.
-- the default `gate_scan_distance` is now 1, so only roads that actually cross the boundary leave a gap. it was 6, which also opened the wall wherever a road ran alongside it.
+- the default `gate_scan_distance` is now 0, so only a road whose own ground is on the boundary leaves a gap. it was 6, which also opened the wall wherever a road ran alongside it, up to six blocks away. a profile that sets its own value keeps it.
 - a planned wall node whose ground turns out to be a road is left open, even if its chunk wasn't loaded when the plan was made.
 - the wall control block only counts above the village's representative bell, the one `/regrowth village analyze` reports. blocks above its other bells stay where they are but no longer pause or resume anything, and new villages only get one.
 - `/regrowth village` commands act on the whole village. an enable, disable or mode setting that 1.1.0 stored on another bell of the village still applies until it's changed.

@@ -88,11 +88,23 @@ public final class VillageSafety {
 			if (!isColumnLoaded(level, x, z)) {
 				continue;
 			}
-			if (isRoad(level.getBlockState(surface(level, x, z)), profile)) {
+			if (isRoad(level.getBlockState(groundUnderBoundary(level, surface(level, x, z))), profile)) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * The block under any wall, fence or gate standing on this one. A gate built on a road must not hide that road
+	 * from the next plan, or the crossing would close up into a row of gates.
+	 */
+	private static BlockPos groundUnderBoundary(ServerLevel level, BlockPos surface) {
+		BlockPos ground = surface;
+		for (int depth = 0; depth < 6 && isBoundaryBlock(level.getBlockState(ground)); depth++) {
+			ground = ground.below();
+		}
+		return ground;
 	}
 
 	public static boolean isColumnLoaded(ServerLevel level, int x, int z) {

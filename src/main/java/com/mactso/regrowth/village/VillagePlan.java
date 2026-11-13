@@ -22,6 +22,31 @@ public record VillagePlan(
 		return (int) boundary.stream().filter(node -> node.role() == BoundaryRole.OPENING).count();
 	}
 
+	/** Widths of the gaps in the wall, each a run of gate and opening nodes, widest first. */
+	public List<Integer> openingWidths() {
+		int firstWall = -1;
+		for (int index = 0; index < boundary.size() && firstWall < 0; index++) {
+			if (boundary.get(index).role() == BoundaryRole.WALL) {
+				firstWall = index;
+			}
+		}
+		if (firstWall < 0) {
+			return boundary.isEmpty() ? List.of() : List.of(boundary.size());
+		}
+		List<Integer> widths = new ArrayList<>();
+		int width = 0;
+		for (int offset = 1; offset <= boundary.size(); offset++) {
+			if (boundary.get((firstWall + offset) % boundary.size()).role() != BoundaryRole.WALL) {
+				width++;
+			} else if (width > 0) {
+				widths.add(width);
+				width = 0;
+			}
+		}
+		widths.sort(Comparator.reverseOrder());
+		return widths;
+	}
+
 	public boolean contains(GridPoint position) {
 		boolean inside = false;
 		for (int index = 0, previous = boundary.size() - 1; index < boundary.size(); previous = index++) {

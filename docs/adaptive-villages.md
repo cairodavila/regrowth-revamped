@@ -37,7 +37,7 @@ profiles are server-data JSON resources under `data/<namespace>/regrowth/village
     "scan_radius": 64,
     "minimum_radius": 18,
     "maximum_radius": 64,
-    "gate_scan_distance": 1,
+    "gate_scan_distance": 0,
     "cache_ticks": 6000
   },
   "walls": {
@@ -58,6 +58,8 @@ profiles are server-data JSON resources under `data/<namespace>/regrowth/village
   }
 }
 ```
+
+`gate_scan_distance` is how far inward and outward from a boundary node a road still opens it. at 0, the default, a node opens only when its own ground is road. the boundary is a closed line of orthogonal steps, so every path that crosses it, even a diagonal one, has a road block on one of its nodes, while a path running alongside the boundary no longer opens it. one open node is added on each side of every crossing.
 
 structure selectors are optional because many structure data packs keep vanilla village POIs but don't add their structures to the vanilla village structure tag. a pack can target an exact custom structure identifier when it needs to.
 
