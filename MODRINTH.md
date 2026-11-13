@@ -8,6 +8,8 @@ Regrowth gives creatures small environmental effects and lets villagers maintain
 
 Revamped ports the mod to Minecraft 26.2 and 26.3 and replaces the original assumption of a small square village with a safer, data-driven planning system meant for custom village structures and large modpacks.
 
+[changelog](https://github.com/cairodavila/regrowth-revamped/blob/main/CHANGELOG.md) · [adaptive villages guide](https://github.com/cairodavila/regrowth-revamped/blob/main/docs/adaptive-villages.md) · [source code](https://github.com/cairodavila/regrowth-revamped) · [issue tracker](https://github.com/cairodavila/regrowth-revamped/issues)
+
 ## features
 
 - Minecraft 26.2 and 26.3 support on Fabric
@@ -25,9 +27,9 @@ Revamped ports the mod to Minecraft 26.2 and 26.3 and replaces the original assu
 
 ## adaptive village walls
 
-the default `poi_hull` mode expands a boundary around nearby village POIs and scans that boundary for roads. villagers then build it gradually, one block at a time.
+the default `poi_hull` mode expands a boundary around nearby village POIs and scans that boundary for roads. villagers then build it gradually, one block at a time. a village with several bells within 64 blocks of each other gets one boundary, centred on the bell nearest the middle of its homes and job sites.
 
-wall construction keeps Regrowth's original control-block behavior. unless `key.playerWallControlBlockString` is set to `minecraft:air`, the configured control block must be directly above the village meeting POI. new village chunks receive this block automatically.
+wall construction keeps Regrowth's original control-block behavior. unless `key.playerWallControlBlockString` is set to `minecraft:air`, the configured control block must be directly above the village's bell, the one `/regrowth village analyze` reports; a block above any other bell of the same village doesn't count. new village chunks receive this block automatically. a village that had already been explored before the mod was added gets no automatic block, so its walls don't start until someone places the configured control block on the bell that `/regrowth village analyze` reports.
 
 use `legacy` mode if you prefer the original fixed-square perimeter.
 
@@ -44,7 +46,7 @@ the default villager action string is still `chrwvt`.
 | `r` | clear snow and repair likely road gaps |
 | `w` | build planned village walls and road-crossing gates |
 | `v` | trim natural leaves and cactus |
-| `t` | place lighting in dark areas, near farms and along walls |
+| `t` | put up lamp posts beside dark village paths, and place torches in dark covered spots, near farms and along walls |
 
 farm maintenance and profession-specific flower planting are assigned through profession roles and don't use these letters.
 
@@ -71,7 +73,7 @@ commands need game-master permission and select the nearest meeting POI within 9
 | 26.3 | 0.165.2+26.3 or newer | 0.19.3 or newer | 25 |
 | 26.2 | 0.161.0+26.2 or newer | 0.19.3 or newer | 25 |
 
-pick the file that matches your Minecraft version; its version number ends in it, like `1.1.0+26.3`. [Fabric API](https://modrinth.com/mod/fabric-api) is a required dependency.
+pick the file that matches your Minecraft version; its version number ends in it, like `1.2.0+26.3`. [Fabric API](https://modrinth.com/mod/fabric-api) is a required dependency.
 
 ## installation
 

@@ -16,6 +16,8 @@ import com.mactso.regrowth.config.WallFoundationDataManager;
 import com.mactso.regrowth.utility.Utility;
 import com.mactso.regrowth.village.ProfessionRoleManager;
 import com.mactso.regrowth.village.VillageProfessionRole;
+import com.mactso.regrowth.village.VillageLamps;
+import com.mactso.regrowth.village.VillagePlanManager;
 import com.mactso.regrowth.village.VillageService;
 
 import net.minecraft.core.BlockPos;
@@ -262,6 +264,8 @@ public class MoveEntityEvent {
 			if (vImproveLighting(ve)) {
 				Utility.debugMsg(1, ve, debugKey + "-" + footBlock + ", " + groundBlock + " pitch: " + ve.getXRot()
 						+ " lighting improved.");
+			} else if (VillageLamps.buildLampPost(ve)) {
+				Utility.debugMsg(1, ve, debugKey + " lamp post built.");
 			}
 		}
 		Utility.debugMsg(1, "exit Village Events");
@@ -1366,7 +1370,8 @@ public class MoveEntityEvent {
 
 		if (isOkayToBuildWallHere(ve)) {
 			GlobalPos gVMP = vMeetingPlace.get();
-			BlockPos villageMeetingPlaceBlockPos = gVMP.pos();
+			BlockPos villageMeetingPlaceBlockPos = VillagePlanManager.village((ServerLevel) ve.level(), gVMP.pos())
+					.representative();
 
 			if (!(ve.level().getBlockState(villageMeetingPlaceBlockPos.above(1)).getBlock() instanceof WallBlock)) {
 				return;

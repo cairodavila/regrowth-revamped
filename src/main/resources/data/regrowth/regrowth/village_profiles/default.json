@@ -8,7 +8,7 @@
     "minimum_radius": 18,
     "maximum_radius": 64,
     "legacy_radius": 23,
-    "gate_scan_distance": 6,
+    "gate_scan_distance": 0,
     "cache_ticks": 6000
   },
   "walls": {
@@ -26,5 +26,8 @@
     "protected": ["#regrowth:protected_from_villagers"],
     "repair": "gaps_only",
     "smooth_slopes": true
+  },
+  "lighting": {
+    "lamp_post": "fence_torch"
   }
 }

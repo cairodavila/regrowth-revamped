@@ -7,5 +7,8 @@
     "blocks": ["minecraft:sandstone_wall"],
     "fences": ["minecraft:birch_fence"],
     "gates": ["minecraft:birch_fence_gate"]
+  },
+  "lighting": {
+    "lamp_post": "desert"
   }
 }

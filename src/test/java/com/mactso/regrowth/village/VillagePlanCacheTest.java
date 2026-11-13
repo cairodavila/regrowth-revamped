@@ -13,7 +13,7 @@ class VillagePlanCacheTest {
 
 	@Test
 	void cachedPlanExpiresAndCanBeInvalidated() {
-		VillagePlanCache cache = new VillagePlanCache();
+		VillagePlanCache<VillagePlan> cache = new VillagePlanCache<>();
 		VillageKey key = new VillageKey("minecraft:overworld", 42L);
 		VillagePlan plan = VillageGeometryPlanner.create(
 				new GridPoint(0, 0), List.of(), VillageBoundarySettings.DEFAULT);

@@ -21,11 +21,13 @@ public record VillageProfile(
 		List<ResourceSelector> structures,
 		VillageBoundarySettings boundary,
 		WallSettings walls,
-		RoadSettings roads) {
+		RoadSettings roads,
+		LampPost lampPost) {
 
 	public VillageProfile {
 		biomes = List.copyOf(biomes);
 		structures = List.copyOf(structures);
+		lampPost = lampPost == null ? LampPost.DEFAULT : lampPost;
 	}
 
 	public static VillageProfile parse(Identifier id, JsonObject root) {
@@ -66,7 +68,10 @@ public record VillageProfile(
 				RoadRepairMode.parse(string(roadsJson, "repair", "gaps_only")),
 				bool(roadsJson, "smooth_slopes", roadDefaults.smoothSlopes()));
 
-		return new VillageProfile(id, priority, biomes, structures, boundary, walls, roads);
+		// Profiles written before lamp posts have no lighting section and get the default post.
+		LampPost lampPost = LampPost.parse(string(object(root, "lighting"), "lamp_post", null), LampPost.DEFAULT);
+
+		return new VillageProfile(id, priority, biomes, structures, boundary, walls, roads, lampPost);
 	}
 
 	public static VillageProfile fallback() {
@@ -77,7 +82,8 @@ public record VillageProfile(
 				List.of(),
 				VillageBoundarySettings.DEFAULT,
 				WallSettings.defaults(),
-				RoadSettings.defaults());
+				RoadSettings.defaults(),
+				LampPost.DEFAULT);
 	}
 
 	public boolean matchesBiome(net.minecraft.core.Holder<net.minecraft.world.level.biome.Biome> biome) {

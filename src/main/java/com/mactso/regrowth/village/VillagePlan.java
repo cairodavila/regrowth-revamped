@@ -1,8 +1,8 @@
 package com.mactso.regrowth.village;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 public record VillagePlan(
 		GridPoint meetingPoint,
@@ -20,6 +20,31 @@ public record VillagePlan(
 
 	public int openingCount() {
 		return (int) boundary.stream().filter(node -> node.role() == BoundaryRole.OPENING).count();
+	}
+
+	/** Widths of the gaps in the wall, each a run of gate and opening nodes, widest first. */
+	public List<Integer> openingWidths() {
+		int firstWall = -1;
+		for (int index = 0; index < boundary.size() && firstWall < 0; index++) {
+			if (boundary.get(index).role() == BoundaryRole.WALL) {
+				firstWall = index;
+			}
+		}
+		if (firstWall < 0) {
+			return boundary.isEmpty() ? List.of() : List.of(boundary.size());
+		}
+		List<Integer> widths = new ArrayList<>();
+		int width = 0;
+		for (int offset = 1; offset <= boundary.size(); offset++) {
+			if (boundary.get((firstWall + offset) % boundary.size()).role() != BoundaryRole.WALL) {
+				width++;
+			} else if (width > 0) {
+				widths.add(width);
+				width = 0;
+			}
+		}
+		widths.sort(Comparator.reverseOrder());
+		return widths;
 	}
 
 	public boolean contains(GridPoint position) {
@@ -43,19 +68,22 @@ public record VillagePlan(
 		return inside;
 	}
 
-	public Optional<IndexedBoundaryNode> nearestBoundary(GridPoint position, int maximumDistance) {
+	/** Boundary nodes within {@code maximumDistance} of {@code position}, nearest first. */
+	public List<IndexedBoundaryNode> boundaryWithin(GridPoint position, int maximumDistance) {
 		long maximumDistanceSquared = (long) maximumDistance * maximumDistance;
-		IndexedBoundaryNode nearest = null;
-		long nearestDistanceSquared = Long.MAX_VALUE;
+		List<IndexedBoundaryNode> nearby = new ArrayList<>();
 		for (int index = 0; index < boundary.size(); index++) {
-			BoundaryNode node = boundary.get(index);
-			long distanceSquared = node.position().distanceSquared(position);
-			if (distanceSquared <= maximumDistanceSquared && distanceSquared < nearestDistanceSquared) {
-				nearest = new IndexedBoundaryNode(index, node);
-				nearestDistanceSquared = distanceSquared;
+			if (boundary.get(index).position().distanceSquared(position) <= maximumDistanceSquared) {
+				nearby.add(new IndexedBoundaryNode(index, boundary.get(index)));
 			}
 		}
-		return Optional.ofNullable(nearest);
+		nearby.sort(Comparator.comparingLong(node -> node.node().position().distanceSquared(position)));
+		return nearby;
+	}
+
+	public IndexedBoundaryNode neighbor(int index, int offset) {
+		int neighborIndex = Math.floorMod(index + offset, boundary.size());
+		return new IndexedBoundaryNode(neighborIndex, boundary.get(neighborIndex));
 	}
 
 	public VillagePlan withBoundaryRoles(List<BoundaryRole> roles) {

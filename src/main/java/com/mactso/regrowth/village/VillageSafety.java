@@ -45,7 +45,7 @@ public final class VillageSafety {
 		if (!matchesAny(groundState, profile.walls().foundations())) {
 			return Optional.empty();
 		}
-		if (!buildState.isAir() && !matchesAny(buildState, profile.walls().replaceable())) {
+		if (!isAirOrReplaceable(buildState, profile)) {
 			return Optional.empty();
 		}
 		if (isProtected(level, ground, profile.walls().protectedBlocks())
@@ -53,6 +53,28 @@ public final class VillageSafety {
 			return Optional.empty();
 		}
 		return Optional.of(new BoundarySite(ground, buildPosition, false));
+	}
+
+	/**
+	 * Air, or a small plant from the profile's replaceable list that a wall or lamp post may go in place of. A
+	 * waterlogged plant never counts, so building never removes water.
+	 */
+	public static boolean isAirOrReplaceable(BlockState state, VillageProfile profile) {
+		return state.isAir()
+				|| matchesAny(state, profile.walls().replaceable()) && state.getFluidState().isEmpty();
+	}
+
+	/** Height of a column's lowest boundary block, or where it would go when nothing is built yet. */
+	public static Optional<Integer> wallBaseY(ServerLevel level, VillageProfile profile, BoundaryNode node) {
+		return boundarySite(level, profile, node).map(site -> {
+			BlockPos base = site.buildPosition();
+			if (site.alreadyBuilt()) {
+				while (isBoundaryBlock(level.getBlockState(base.below()))) {
+					base = base.below();
+				}
+			}
+			return base.getY();
+		});
 	}
 
 	public static boolean crossesRoad(
@@ -66,11 +88,23 @@ public final class VillageSafety {
 			if (!isColumnLoaded(level, x, z)) {
 				continue;
 			}
-			if (isRoad(level.getBlockState(surface(level, x, z)), profile)) {
+			if (isRoad(level.getBlockState(groundUnderBoundary(level, surface(level, x, z))), profile)) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * The block under any wall, fence or gate standing on this one. A gate built on a road must not hide that road
+	 * from the next plan, or the crossing would close up into a row of gates.
+	 */
+	private static BlockPos groundUnderBoundary(ServerLevel level, BlockPos surface) {
+		BlockPos ground = surface;
+		for (int depth = 0; depth < 6 && isBoundaryBlock(level.getBlockState(ground)); depth++) {
+			ground = ground.below();
+		}
+		return ground;
 	}
 
 	public static boolean isColumnLoaded(ServerLevel level, int x, int z) {

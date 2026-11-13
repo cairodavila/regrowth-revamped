@@ -38,7 +38,7 @@ the existing animal and monster actions still work the same way.
 
 ## installation
 
-1. download the JAR for your Minecraft version from [Modrinth](https://modrinth.com/mod/regrowth-revamped). the file name ends in the Minecraft version, like `1.1.0+26.3`.
+1. download the JAR for your Minecraft version from [Modrinth](https://modrinth.com/mod/regrowth-revamped). the file name ends in the Minecraft version, like `1.2.0+26.3`.
 2. copy it into the instance's `mods` directory.
 3. start Minecraft once to create `config/regrowthconfig.properties`.
 
@@ -46,9 +46,9 @@ villagers can change roads and build walls. back up an existing world, or try th
 
 ## adaptive villages
 
-the default `poi_hull` mode builds a boundary around nearby village POIs and scans that boundary for roads. plans are cached by dimension and meeting point. villagers still work one block at a time; calculating a plan does not rebuild a village immediately.
+the default `poi_hull` mode builds a boundary around nearby village POIs and scans that boundary for roads. plans are cached by dimension and village. bells within 64 blocks of each other belong to one village, which gets one boundary centred on the bell nearest the middle of its homes and job sites; `/regrowth village analyze` reports that bell. villagers still work one block at a time; calculating a plan does not rebuild a village immediately.
 
-wall construction keeps Regrowth's original control-block behavior. unless `key.playerWallControlBlockString` is set to `minecraft:air`, the configured block must be directly above the meeting POI. new village chunks receive the control block automatically.
+wall construction keeps Regrowth's original control-block behavior. unless `key.playerWallControlBlockString` is set to `minecraft:air`, the configured block must be directly above the village's bell, the one `analyze` reports; a block above any other bell of the same village doesn't count. new village chunks receive the control block automatically. a village that had already been explored before the mod was added gets no automatic block, so its walls don't start until someone places the configured control block on the bell that `analyze` reports.
 
 use `legacy` mode if you prefer the original fixed-square wall layout.
 
@@ -67,7 +67,7 @@ the default villager action string is still `chrwvt`:
 | `r` | clear snow and repair likely gaps in roads |
 | `w` | build village walls and road-crossing gates |
 | `v` | trim natural leaves and cactus |
-| `t` | place lighting in dark areas, near farms and along walls |
+| `t` | put up lamp posts beside dark village paths, and place torches in dark covered spots, near farms and along walls |
 
 farm maintenance and profession-specific flower planting are assigned through profession roles and don't use those letters.
 
@@ -144,7 +144,7 @@ block.performBonemeal(level, level.getRandom(), pos, state, BonemealSource.MOB);
 
 ## versioning
 
-Revamped uses semantic versioning. every release is built once per Minecraft version, and the Minecraft version is added as build metadata: `1.1.0+26.2` and `1.1.0+26.3` are the same release. the [changelog](CHANGELOG.md) lists every release.
+Revamped uses semantic versioning. every release is built once per Minecraft version, and the Minecraft version is added as build metadata: `1.2.0+26.2` and `1.2.0+26.3` are the same release. the [changelog](CHANGELOG.md) lists every release.
 
 ## credits
 

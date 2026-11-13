@@ -38,5 +38,15 @@ class VillageProfileTest {
 		assertEquals(20, profile.boundary().maximumRadius());
 		assertEquals(VillageProfile.RoadRepairMode.DISABLED, profile.roads().repairMode());
 		assertTrue(profile.structures().isEmpty());
+		assertEquals(LampPost.FENCE_TORCH, profile.lampPost());
+	}
+
+	@Test
+	void lightingSectionPicksTheLampPost() {
+		VillageProfile profile = VillageProfile.parse(
+				Identifier.fromNamespaceAndPath("test", "snowy"),
+				JsonParser.parseString("{\"lighting\": {\"lamp_post\": \"none\"}}").getAsJsonObject());
+
+		assertEquals(LampPost.NONE, profile.lampPost());
 	}
 }

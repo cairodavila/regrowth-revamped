@@ -1,6 +1,31 @@
 # changelog
 
-every release of Regrowth: Revamped, newest first. versions follow [semver](https://semver.org); each release is built once per supported Minecraft version, marked as build metadata (`1.1.0+26.3`).
+every release of Regrowth: Revamped, newest first. versions follow [semver](https://semver.org); each release is built once per supported Minecraft version, marked as build metadata (`1.2.0+26.3`).
+
+## 1.2.0 · 2026-11-12
+
+supports Minecraft 26.2 and 26.3.
+
+### added
+
+- villagers put up lamp posts beside dark village paths: a whole post at a time, on natural ground next to a road, where block light is 1 or less, away from the wall line, doors, beds and job sites. the designs are vanilla's own village lamps: plains, desert and snowy, and two fences with a torch for every other village. a profile picks its post with `lighting.lamp_post` (`plains`, `desert`, `snowy`, `fence_torch` or `none`); profiles without it get `fence_torch`. `/regrowth village disable` stops them too.
+- plains villages get their own `regrowth:plains` profile, which only adds the plains lamp post; walls and roads stay the same as the default profile's.
+
+### changed
+
+- village walls grow as continuous runs. a villager near the boundary extends a wall segment that's already started before beginning a new one, so the wall no longer appears as scattered single posts.
+- where the ground steps up one or two blocks, the lower wall column is raised to meet its neighbor, so walls stay connected on terraced terrain. bigger drops are left as they are; the cliff is already a barrier.
+- the default `gate_scan_distance` is now 0, so only a road whose own ground is on the boundary leaves a gap. it was 6, which also opened the wall wherever a road ran alongside it, up to six blocks away. a profile that sets its own value keeps it.
+- a planned wall node whose ground turns out to be a road is left open, even if its chunk wasn't loaded when the plan was made.
+- the wall control block only counts above the village's representative bell, the one `/regrowth village analyze` reports. blocks above its other bells stay where they are but no longer pause or resume anything, and new villages only get one.
+- `/regrowth village` commands act on the whole village. an enable, disable or mode setting that 1.1.0 stored on another bell of the village still applies until it's changed.
+- personal fences (`p`) use the representative bell too.
+
+### fixed
+
+- a village with more than one bell got a wall ring around each bell, and the rings crossed each other. bells within 64 blocks of each other now belong to one village with one plan, centred on the bell nearest the middle of its homes and job sites. villages with one bell keep the plan they had.
+- villagers that remembered a removed bell kept a plan of their own around it; they now use the plan of the village around it.
+- a flower, sapling or bush standing on the wall line left a permanent one-block hole in the wall. walls now replace small plants: `#minecraft:small_flowers`, `#minecraft:saplings`, the tall flowers, pink petals, wildflowers and bushes. a plant holding water is never replaced.
 
 ## 1.1.0 · 2026-11-03
 
