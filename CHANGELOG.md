@@ -20,6 +20,7 @@ supports Minecraft 26.2 and 26.3.
 
 - a village with more than one bell got a wall ring around each bell, and the rings crossed each other. bells within 64 blocks of each other now belong to one village with one plan, centred on the bell nearest the middle of its homes and job sites. villages with one bell keep the plan they had.
 - villagers that remembered a removed bell kept a plan of their own around it; they now use the plan of the village around it.
+- a flower, sapling or bush standing on the wall line left a permanent one-block hole in the wall. walls now replace small plants: `#minecraft:small_flowers`, `#minecraft:saplings`, the tall flowers, pink petals, wildflowers and bushes. a plant holding water is never replaced.
 
 ## 1.1.0 · 2026-11-03
 

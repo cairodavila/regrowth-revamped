@@ -78,7 +78,7 @@ supported roles are `clear`, `farm`, `heal_people`, `heal_golems`, `lighting`, `
 ## safety tags
 
 - `regrowth:wall_foundations`: ground that may support a planned wall.
-- `regrowth:wall_replaceable`: blocks a wall may safely replace.
+- `regrowth:wall_replaceable`: blocks a wall may safely replace: air, snow and small plants such as grass, flowers, saplings and bushes. a plant holding water is never replaced, whatever the tag says.
 - `regrowth:road_replaceable`: natural ground that road repair may replace.
 - `regrowth:village_roads`: blocks recognized as village roads.
 - `regrowth:protected_from_villagers`: blocks that construction and repair must never replace.

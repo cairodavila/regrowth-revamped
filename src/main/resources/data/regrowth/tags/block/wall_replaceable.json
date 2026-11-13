@@ -14,6 +14,18 @@
     "minecraft:snow",
     "minecraft:vine",
     "minecraft:glow_lichen",
-    "minecraft:leaf_litter"
+    "minecraft:leaf_litter",
+    "#minecraft:small_flowers",
+    "#minecraft:saplings",
+    "minecraft:sunflower",
+    "minecraft:lilac",
+    "minecraft:rose_bush",
+    "minecraft:peony",
+    "minecraft:pitcher_plant",
+    "minecraft:pink_petals",
+    "minecraft:wildflowers",
+    "minecraft:bush",
+    "minecraft:firefly_bush",
+    { "id": "minecraft:red_shrub", "required": false }
   ]
 }
