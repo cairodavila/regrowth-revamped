@@ -238,7 +238,7 @@ public final class VillageService {
 		VillagePlanManager.context(level, meetingPoint);
 	}
 
-	private static Optional<VillageContext> contextFor(Villager villager) {
+	static Optional<VillageContext> contextFor(Villager villager) {
 		if (!(villager.level() instanceof ServerLevel level)) {
 			return Optional.empty();
 		}

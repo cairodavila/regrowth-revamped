@@ -26,5 +26,8 @@
     "protected": ["#regrowth:protected_from_villagers"],
     "repair": "gaps_only",
     "smooth_slopes": true
+  },
+  "lighting": {
+    "lamp_post": "fence_torch"
   }
 }

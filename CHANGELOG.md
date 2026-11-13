@@ -6,6 +6,11 @@ every release of Regrowth: Revamped, newest first. versions follow [semver](http
 
 supports Minecraft 26.2 and 26.3.
 
+### added
+
+- villagers put up lamp posts beside dark village paths: a whole post at a time, on natural ground next to a road, where block light is 1 or less, away from the wall line, doors, beds and job sites. the designs are vanilla's own village lamps: plains, desert and snowy, and two fences with a torch for every other village. a profile picks its post with `lighting.lamp_post` (`plains`, `desert`, `snowy`, `fence_torch` or `none`); profiles without it get `fence_torch`. `/regrowth village disable` stops them too.
+- plains villages get their own `regrowth:plains` profile, which only adds the plains lamp post; walls and roads stay the same as the default profile's.
+
 ### changed
 
 - village walls grow as continuous runs. a villager near the boundary extends a wall segment that's already started before beginning a new one, so the wall no longer appears as scattered single posts.

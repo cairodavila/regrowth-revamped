@@ -46,7 +46,7 @@ the default villager action string is still `chrwvt`.
 | `r` | clear snow and repair likely road gaps |
 | `w` | build planned village walls and road-crossing gates |
 | `v` | trim natural leaves and cactus |
-| `t` | place lighting in dark areas, near farms and along walls |
+| `t` | put up lamp posts beside dark village paths, and place torches in dark covered spots, near farms and along walls |
 
 farm maintenance and profession-specific flower planting are assigned through profession roles and don't use these letters.
 

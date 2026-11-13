@@ -55,11 +55,28 @@ profiles are server-data JSON resources under `data/<namespace>/regrowth/village
     "protected": ["#regrowth:protected_from_villagers"],
     "repair": "gaps_only",
     "smooth_slopes": true
+  },
+  "lighting": {
+    "lamp_post": "plains"
   }
 }
 ```
 
 `gate_scan_distance` is how far inward and outward from a boundary node a road still opens it. at 0, the default, a node opens only when its own ground is road. the boundary is a closed line of orthogonal steps, so every path that crosses it, even a diagonal one, has a road block on one of its nodes, while a path running alongside the boundary no longer opens it. one open node is added on each side of every crossing.
+
+`lamp_post` picks the lamp post villagers put up, copied from vanilla's village lamps:
+
+| value | post |
+| --- | --- |
+| `plains` | two oak fences under stripped oak wood, with a wall torch on each side |
+| `desert` | cut sandstone, terracotta and a torch |
+| `snowy` | three spruce fences with an arm off the top one and a lantern hanging under it |
+| `fence_torch` | two fences from the profile's `walls.fences` with a torch on top |
+| `none` | no lamp posts |
+
+a profile without a `lighting` section, like one written for 1.1.0, gets `fence_torch`, and so does an unknown value. the shipped profiles use `plains` for plains villages, `desert` and `snowy` for theirs, and `fence_torch` everywhere else.
+
+a villager with the `lighting` role and `t` in its actions puts up a whole post in one action, on one of the four columns next to it, never its own. the column has to be inside the village boundary under open sky, on natural ground from the wall foundations that isn't road, with road on at least one side. it has to be dark: block light 1 or less, so a lit post or a house's torches keep the next post away by themselves: about 11 to 13 blocks counted along the x and z axes, which can be as little as 8 blocks straight across on a diagonal, and less where a slope or a cliff blocks the light. every block of the post goes into air or a small plant from `regrowth:wall_replaceable`, and nothing of it may be within two blocks of the planned wall line, next to a door or a bed, or within two blocks of a bed, job site or bell. the snowy arm points away from the road, or along it, never over the road or the villager. `/regrowth village disable` stops lamp posts like it stops walls and roads; the wall control block doesn't affect them.
 
 structure selectors are optional because many structure data packs keep vanilla village POIs but don't add their structures to the vanilla village structure tag. a pack can target an exact custom structure identifier when it needs to.
 
@@ -80,7 +97,7 @@ supported roles are `clear`, `farm`, `heal_people`, `heal_golems`, `lighting`, `
 ## safety tags
 
 - `regrowth:wall_foundations`: ground that may support a planned wall.
-- `regrowth:wall_replaceable`: blocks a wall may safely replace: air, snow and small plants such as grass, flowers, saplings and bushes. a plant holding water is never replaced, whatever the tag says.
+- `regrowth:wall_replaceable`: blocks a wall or lamp post may safely replace: air, snow and small plants such as grass, flowers, saplings and bushes. a plant holding water is never replaced, whatever the tag says.
 - `regrowth:road_replaceable`: natural ground that road repair may replace.
 - `regrowth:village_roads`: blocks recognized as village roads.
 - `regrowth:protected_from_villagers`: blocks that construction and repair must never replace.

@@ -1,0 +1,9 @@
+{
+  "priority": 30,
+  "match": {
+    "biomes": ["#minecraft:has_structure/village_plains"]
+  },
+  "lighting": {
+    "lamp_post": "plains"
+  }
+}
