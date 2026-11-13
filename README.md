@@ -48,7 +48,7 @@ villagers can change roads and build walls. back up an existing world, or try th
 
 the default `poi_hull` mode builds a boundary around nearby village POIs and scans that boundary for roads. plans are cached by dimension and village. bells within 64 blocks of each other belong to one village, which gets one boundary centred on the bell nearest the middle of its homes and job sites; `/regrowth village analyze` reports that bell. villagers still work one block at a time; calculating a plan does not rebuild a village immediately.
 
-wall construction keeps Regrowth's original control-block behavior. unless `key.playerWallControlBlockString` is set to `minecraft:air`, the configured block must be directly above the village's bell, the one `analyze` reports; a block above any other bell of the same village doesn't count. new village chunks receive the control block automatically.
+wall construction keeps Regrowth's original control-block behavior. unless `key.playerWallControlBlockString` is set to `minecraft:air`, the configured block must be directly above the village's bell, the one `analyze` reports; a block above any other bell of the same village doesn't count. new village chunks receive the control block automatically. a village that had already been explored before the mod was added gets no automatic block, so its walls don't start until someone places the configured control block on the bell that `analyze` reports.
 
 use `legacy` mode if you prefer the original fixed-square wall layout.
 

@@ -29,7 +29,7 @@ Revamped ports the mod to Minecraft 26.2 and 26.3 and replaces the original assu
 
 the default `poi_hull` mode expands a boundary around nearby village POIs and scans that boundary for roads. villagers then build it gradually, one block at a time. a village with several bells within 64 blocks of each other gets one boundary, centred on the bell nearest the middle of its homes and job sites.
 
-wall construction keeps Regrowth's original control-block behavior. unless `key.playerWallControlBlockString` is set to `minecraft:air`, the configured control block must be directly above the village's bell, the one `/regrowth village analyze` reports; a block above any other bell of the same village doesn't count. new village chunks receive this block automatically.
+wall construction keeps Regrowth's original control-block behavior. unless `key.playerWallControlBlockString` is set to `minecraft:air`, the configured control block must be directly above the village's bell, the one `/regrowth village analyze` reports; a block above any other bell of the same village doesn't count. new village chunks receive this block automatically. a village that had already been explored before the mod was added gets no automatic block, so its walls don't start until someone places the configured control block on the bell that `/regrowth village analyze` reports.
 
 use `legacy` mode if you prefer the original fixed-square perimeter.
 
