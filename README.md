@@ -15,6 +15,10 @@ Regrowth lets creatures affect nearby vegetation and gives villagers small jobs 
 
 [changelog](CHANGELOG.md) · [adaptive villages guide](docs/adaptive-villages.md)
 
+![villagers building a village wall over several in-game days, sped up](docs/assets/wall-timelapse.gif)
+
+![a villager putting up a lamp post, then the posts lit at dusk](docs/assets/lamp-posts.gif)
+
 ## what changed
 
 - Minecraft 26.2 and 26.3 support on Java 25

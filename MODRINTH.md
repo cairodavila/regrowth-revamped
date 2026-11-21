@@ -10,6 +10,10 @@ Revamped ports the mod to Minecraft 26.2 and 26.3 and replaces the original assu
 
 [changelog](https://github.com/cairodavila/regrowth-revamped/blob/main/CHANGELOG.md) · [adaptive villages guide](https://github.com/cairodavila/regrowth-revamped/blob/main/docs/adaptive-villages.md) · [source code](https://github.com/cairodavila/regrowth-revamped) · [issue tracker](https://github.com/cairodavila/regrowth-revamped/issues)
 
+![villagers building a village wall over several in-game days, sped up](https://raw.githubusercontent.com/cairodavila/regrowth-revamped/main/docs/assets/wall-timelapse.gif)
+
+![a villager putting up a lamp post, then the posts lit at dusk](https://raw.githubusercontent.com/cairodavila/regrowth-revamped/main/docs/assets/lamp-posts.gif)
+
 ## features
 
 - Minecraft 26.2 and 26.3 support on Fabric
@@ -152,4 +156,4 @@ Regrowth: Revamped is distributed under the [MIT license](https://github.com/cai
 
 ## AI disclosure
 
-AI-assisted coding and editing tools were used during the port, the adaptive-village implementation, testing, and the preparation of this page. the gameplay GIF above is an in-game screen recording.
+AI-assisted coding and editing tools were used during the port, the adaptive-village implementation, testing, and the preparation of this page. the gameplay GIFs above are in-game screen recordings.

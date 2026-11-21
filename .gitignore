@@ -12,3 +12,4 @@ build/
 # Local raw screen recordings
 Screencast_*.mp4
 logs/
+recordings/
