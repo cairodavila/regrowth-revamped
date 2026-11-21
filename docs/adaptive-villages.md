@@ -62,7 +62,11 @@ profiles are server-data JSON resources under `data/<namespace>/regrowth/village
 }
 ```
 
-`gate_scan_distance` is how far inward and outward from a boundary node a road still opens it. at 0, the default, a node opens only when its own ground is road. the boundary is a closed line of orthogonal steps, so every path that crosses it, even a diagonal one, has a road block on one of its nodes, while a path running alongside the boundary no longer opens it. one open node is added on each side of every crossing.
+`gate_scan_distance` is how far inward and outward from a boundary node a road still opens it. at 0, the default, a node opens only when its own ground is road. the boundary is a closed line of orthogonal steps, so every path that crosses it, even a diagonal one, has a road block on one of its nodes, while a path running alongside the boundary no longer opens it.
+
+every road crossing gets gates across the whole road, placed open, because villagers can't work a fence gate. the planner redraws the boundary around a crossing as two straight legs: one crosses the road with the gates in a row and wall in line at both ends, the other runs beside the road back to the old line. the corner is always on the outside, so the redrawn stretch never cuts into the village, and it has as many nodes as the stretch it replaces, so wall torches keep their spacing. road blocks up to two nodes apart count as one crossing, and a hole in the road between them gets a gate too. on later plans a crossing stays on the line that already has blocks on it, even if the road's edge has moved by a block.
+
+a crossing more than 5 blocks wide, or one where the road runs along the boundary instead of through it, is left open without gates.
 
 `lamp_post` picks the lamp post villagers put up, copied from vanilla's village lamps:
 

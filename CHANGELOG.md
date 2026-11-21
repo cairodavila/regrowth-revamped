@@ -2,6 +2,16 @@
 
 every release of Regrowth: Revamped, newest first. versions follow [semver](https://semver.org); each release is built once per supported Minecraft version, marked as build metadata (`1.2.0+26.3`).
 
+## unreleased
+
+### changed
+
+- where a road crosses the village wall, the wall now runs straight and the gates span the whole road, with wall on both sides. 1.2.0 put a single gate in the middle of an open gap, and on a diagonal stretch of wall the gap was diagonal too. where the wall meets the road at an angle, it turns a corner beside the road, on the outside, so the gates stand in one row.
+- gates are placed open. villagers can't work a fence gate, so a closed row would shut them in or out.
+- a hole in a village path no longer splits a crossing in two.
+- a road more than 5 blocks wide on the wall line, or one that runs along it, is left open without gates.
+- walls and gates that 1.2.0 already built stay where they are. at a crossing that's redrawn, a few wall blocks of the old diagonal can be left standing inside the new corner, and a gate from 1.2.0 stays closed until someone opens it.
+
 ## 1.2.0 · 2026-11-12
 
 supports Minecraft 26.2 and 26.3.

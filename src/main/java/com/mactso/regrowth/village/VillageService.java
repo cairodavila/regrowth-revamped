@@ -268,7 +268,9 @@ public final class VillageService {
 		Block gate = profile.walls().gateBlock().orElse(Blocks.OAK_FENCE_GATE);
 		BlockState state = gate.defaultBlockState();
 		if (gate instanceof FenceGateBlock) {
-			state = state.setValue(FenceGateBlock.FACING, direction(node.outward()));
+			// Open, because villagers can't work a fence gate and a closed row would pen them in or out.
+			state = state.setValue(FenceGateBlock.FACING, direction(node.outward()))
+					.setValue(FenceGateBlock.OPEN, true);
 		}
 		return state;
 	}

@@ -52,19 +52,108 @@ class VillageGeometryPlannerTest {
 	}
 
 	@Test
-	void roadCrossingBecomesOneGateWithSafeOpenings() {
+	void straightRoadCrossingIsGatedAcrossItsWholeWidth() {
 		VillageBoundarySettings settings = new VillageBoundarySettings(
 				VillageBoundaryMode.LEGACY, 8, 64, 18, 64, 4, 6, 6000);
 		VillagePlan walls = VillageGeometryPlanner.create(new GridPoint(0, 0), List.of(), settings);
 
 		VillagePlan gated = VillageGeometryPlanner.markRoadGates(walls,
-				node -> node.position().z() == -8 && Math.abs(node.position().x()) <= 1);
+				node -> node.position().z() == -8 && Math.abs(node.position().x()) <= 1, node -> false);
 
-		assertEquals(1, gated.gateCount());
-		assertEquals(4, gated.openingCount());
-		assertEquals(BoundaryRole.GATE, gated.boundary().stream()
-				.filter(node -> node.role() == BoundaryRole.GATE)
-				.findFirst().orElseThrow().role());
+		assertEquals(List.of(new GridPoint(-1, -8), new GridPoint(0, -8), new GridPoint(1, -8)), gates(gated));
+		assertEquals(0, gated.openingCount());
+		assertEquals(positions(walls), positions(gated));
+	}
+
+	@Test
+	void diagonalRoadCrossingIsRedrawnAsAStraightLineOfGates() {
+		List<GridPoint> pois = List.of(new GridPoint(30, 7), new GridPoint(-11, 24), new GridPoint(5, -33));
+		VillagePlan walls = VillageGeometryPlanner.create(new GridPoint(0, 0), pois, VillageBoundarySettings.DEFAULT);
+		// A road three wide running north out of the village, through a diagonal stretch of the boundary.
+		java.util.function.Predicate<VillagePlan.BoundaryNode> road =
+				node -> node.position().z() < 0 && node.position().x() >= 24 && node.position().x() <= 26;
+		assertTrue(walls.boundary().stream().filter(road).map(node -> node.position().z()).distinct().count() > 1,
+				"the road should cross a diagonal stretch");
+
+		VillagePlan gated = VillageGeometryPlanner.markRoadGates(walls, road, node -> false);
+
+		List<GridPoint> gates = gates(gated);
+		assertEquals(3, gates.size());
+		assertEquals(1, gates.stream().map(GridPoint::z).distinct().count(), "gates in one row: " + gates);
+		assertEquals(0, gated.openingCount());
+		// Wall in the same row on both sides of the gates.
+		int z = gates.getFirst().z();
+		assertEquals(BoundaryRole.WALL, roleAt(gated, new GridPoint(23, z)));
+		assertEquals(BoundaryRole.WALL, roleAt(gated, new GridPoint(27, z)));
+		// The gates face along the road.
+		assertTrue(gated.boundary().stream().filter(node -> node.role() == BoundaryRole.GATE)
+				.allMatch(node -> node.outward() == VillagePlan.CardinalDirection.NORTH));
+		assertEquals(walls.boundary().size(), gated.boundary().size());
+		assertEquals(gated.boundary().size(), positions(gated).stream().distinct().count());
+		assertConnectedLoop(gated);
+		assertTrue(gated.boundary().stream().filter(node -> node.role() == BoundaryRole.WALL).noneMatch(road));
+		// The redrawn stretch bulges outward, so nothing that was inside ends up outside.
+		assertTrue(walls.boundary().stream().allMatch(node -> gated.contains(node.position())));
+	}
+
+	@Test
+	void redrawnCrossingStaysOnTheLineThatIsAlreadyBuilt() {
+		List<GridPoint> pois = List.of(new GridPoint(30, 7), new GridPoint(-11, 24), new GridPoint(5, -33));
+		VillagePlan walls = VillageGeometryPlanner.create(new GridPoint(0, 0), pois, VillageBoundarySettings.DEFAULT);
+		java.util.function.Predicate<VillagePlan.BoundaryNode> road =
+				node -> node.position().z() < 0 && node.position().x() >= 24 && node.position().x() <= 26;
+		int preferredRow = gates(VillageGeometryPlanner.markRoadGates(walls, road, node -> false)).getFirst().z();
+
+		// Gates already stand one row away from the one the planner would pick on its own.
+		VillagePlan gated = VillageGeometryPlanner.markRoadGates(walls, road,
+				node -> node.position().z() == preferredRow + 1 && road.test(node));
+
+		assertEquals(preferredRow + 1, gates(gated).getFirst().z());
+		assertEquals(3, gated.gateCount());
+		assertConnectedLoop(gated);
+	}
+
+	@Test
+	void wallBuiltOnTheOldLineDoesNotMoveARedrawnCrossing() {
+		List<GridPoint> pois = List.of(new GridPoint(30, 7), new GridPoint(-11, 24), new GridPoint(5, -33));
+		VillagePlan walls = VillageGeometryPlanner.create(new GridPoint(0, 0), pois, VillageBoundarySettings.DEFAULT);
+		java.util.function.Predicate<VillagePlan.BoundaryNode> road =
+				node -> node.position().z() < 0 && node.position().x() >= 24 && node.position().x() <= 26;
+		VillagePlan first = VillageGeometryPlanner.markRoadGates(walls, road, node -> false);
+		java.util.Set<GridPoint> oldLine = new java.util.HashSet<>(positions(walls));
+
+		// The wall is finished everywhere except on the redrawn stretch.
+		VillagePlan second = VillageGeometryPlanner.markRoadGates(walls, road,
+				node -> oldLine.contains(node.position()) && !road.test(node));
+
+		assertEquals(first.boundary(), second.boundary());
+	}
+
+	@Test
+	void holeInARoadIsGatedWithTheRestOfTheCrossing() {
+		VillageBoundarySettings settings = new VillageBoundarySettings(
+				VillageBoundaryMode.LEGACY, 8, 64, 18, 64, 4, 6, 6000);
+		VillagePlan walls = VillageGeometryPlanner.create(new GridPoint(0, 0), List.of(), settings);
+
+		VillagePlan gated = VillageGeometryPlanner.markRoadGates(walls,
+				node -> node.position().z() == -8 && Math.abs(node.position().x()) == 1, node -> false);
+
+		assertEquals(List.of(new GridPoint(-1, -8), new GridPoint(0, -8), new GridPoint(1, -8)), gates(gated));
+		assertEquals(0, gated.openingCount());
+	}
+
+	@Test
+	void roadRunningAlongTheBoundaryIsLeftOpenWithoutGates() {
+		VillageBoundarySettings settings = new VillageBoundarySettings(
+				VillageBoundaryMode.LEGACY, 8, 64, 18, 64, 8, 0, 6000);
+		VillagePlan walls = VillageGeometryPlanner.create(new GridPoint(0, 0), List.of(), settings);
+
+		VillagePlan gated = VillageGeometryPlanner.markRoadGates(walls,
+				node -> node.position().z() == -8 && Math.abs(node.position().x()) <= 3, node -> false);
+
+		assertEquals(0, gated.gateCount());
+		assertEquals(List.of(7), gated.openingWidths());
+		assertEquals(positions(walls), positions(gated));
 	}
 
 	@Test
@@ -73,7 +162,7 @@ class VillageGeometryPlannerTest {
 				VillageBoundaryMode.LEGACY, 8, 64, 18, 64, 4, 6, 6000);
 		VillagePlan walls = VillageGeometryPlanner.create(new GridPoint(0, 0), List.of(), settings);
 
-		VillagePlan gated = VillageGeometryPlanner.markRoadGates(walls, node -> true);
+		VillagePlan gated = VillageGeometryPlanner.markRoadGates(walls, node -> true, node -> false);
 
 		assertEquals(walls.boundary().size(), gated.openingCount());
 	}
@@ -127,10 +216,28 @@ class VillageGeometryPlannerTest {
 
 		VillagePlan gated = VillageGeometryPlanner.markRoadGates(walls,
 				node -> node.position().z() == -8 && Math.abs(node.position().x()) <= 1
-						|| node.position().x() == 8 && node.position().z() == 0);
+						|| node.position().x() == 8 && node.position().z() == 0, node -> false);
 
-		assertEquals(List.of(5, 3), gated.openingWidths());
+		assertEquals(List.of(3, 1), gated.openingWidths());
 		assertEquals(List.of(), walls.openingWidths());
+	}
+
+	private static List<GridPoint> positions(VillagePlan plan) {
+		return plan.boundary().stream().map(VillagePlan.BoundaryNode::position).toList();
+	}
+
+	private static List<GridPoint> gates(VillagePlan plan) {
+		return plan.boundary().stream()
+				.filter(node -> node.role() == BoundaryRole.GATE)
+				.map(VillagePlan.BoundaryNode::position)
+				.sorted()
+				.toList();
+	}
+
+	private static BoundaryRole roleAt(VillagePlan plan, GridPoint position) {
+		return plan.boundary().stream()
+				.filter(node -> node.position().equals(position))
+				.findFirst().orElseThrow().role();
 	}
 
 	private static void assertConnectedLoop(VillagePlan plan) {
