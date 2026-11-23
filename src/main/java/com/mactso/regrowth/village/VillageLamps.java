@@ -86,7 +86,8 @@ public final class VillageLamps {
 			return Optional.empty();
 		}
 		List<CardinalDirection> roadSides = roadSides(level, profile, ground);
-		if (roadSides.isEmpty()) {
+		// A hole in the road isn't ground beside it: road repair fills it, and a post there would block the road.
+		if (roadSides.isEmpty() || VillageService.roadRepair(level, ground, profile).isPresent()) {
 			return Optional.empty();
 		}
 		BlockPos base = ground.above();
@@ -100,7 +101,10 @@ public final class VillageLamps {
 				: List.of(CardinalDirection.NORTH);
 		for (CardinalDirection arm : arms) {
 			List<Piece> pieces = design.pieces(arm);
-			if (fits(level, village, base, pieces)) {
+			// Nobody can stand under the lantern, so a road hole under the arm would never be repaired.
+			boolean armOverRoadHole = design.hasArm() && VillageService.roadRepair(
+					level, naturalGround(level, profile, x + arm.stepX(), z + arm.stepZ()), profile).isPresent();
+			if (!armOverRoadHole && fits(level, village, base, pieces)) {
 				return Optional.of(new Post(base, design, pieces));
 			}
 		}

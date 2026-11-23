@@ -85,7 +85,7 @@ the default villager action string is still `chrwvt`:
 | --- | --- |
 | `c` | clear obstructing grass (flowers are left alone) |
 | `h` | let clerics heal people and toolsmiths repair iron golems |
-| `r` | clear snow and repair likely gaps in roads |
+| `r` | repair breaks of up to three blocks in village paths, and clear snow off roads |
 | `w` | build village walls and road-crossing gates |
 | `v` | trim natural leaves and cactus |
 | `t` | put up lamp posts beside dark village paths, and place torches in dark covered spots, near farms and along walls |

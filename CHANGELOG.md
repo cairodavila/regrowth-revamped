@@ -11,6 +11,11 @@ every release of Regrowth: Revamped, newest first. versions follow [semver](http
 - a hole in a village path no longer splits a crossing in two.
 - a road more than 5 blocks wide on the wall line, or one that runs along it, is left open without gates.
 - walls and gates that 1.2.0 already built stay where they are. at a crossing that's redrawn, a few wall blocks of the old diagonal can be left standing inside the new corner, and a gate from 1.2.0 stays closed until someone opens it.
+- road repair fills a break of up to three blocks in a village path, as long as the path carries on at both ends in a straight line. 1.2.0 only filled a hole one block long, so a wider break stayed open for good. a break of four blocks or more is still left alone, because it may be two paths that were never joined.
+
+### fixed
+
+- a lamp post could go up in a hole in the middle of a path, because the hole counted as ground beside a road. the post then blocked that block's repair and hid the path from the blocks next to it. posts, and the arm of the snowy post, now keep out of any spot that road repair would fill.
 
 ## 1.2.0 · 2026-11-12
 
