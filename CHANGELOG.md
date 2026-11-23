@@ -1,20 +1,22 @@
 # changelog
 
-every release of Regrowth: Revamped, newest first. versions follow [semver](https://semver.org); each release is built once per supported Minecraft version, marked as build metadata (`1.2.0+26.3`).
+every release of Regrowth: Revamped, newest first. versions follow [semver](https://semver.org); each release is built once per supported Minecraft version, marked as build metadata (`1.3.0+26.3`).
 
-## unreleased
+## 1.3.0 · 2026-11-23
+
+supports Minecraft 26.2 and 26.3.
 
 ### changed
 
-- where a road crosses the village wall, the wall now runs straight and the gates span the whole road, with wall on both sides. 1.2.0 put a single gate in the middle of an open gap, and on a diagonal stretch of wall the gap was diagonal too. where the wall meets the road at an angle, it turns a corner beside the road, on the outside, so the gates stand in one row.
+- where a road crosses the village wall, the wall runs straight across it and a row of gates spans the whole road, with wall at both ends. 1.2.0 put a single gate in the middle of an open gap, and where the wall ran diagonally the gap was diagonal too. where the wall meets the road at an angle, it turns a corner beside the road, on the outside, so the gates stand in one row.
 - gates are placed open. villagers can't work a fence gate, so a closed row would shut them in or out.
-- a hole in a village path no longer splits a crossing in two.
-- a road more than 5 blocks wide on the wall line, or one that runs along it, is left open without gates.
-- walls and gates that 1.2.0 already built stay where they are. at a crossing that's redrawn, a few wall blocks of the old diagonal can be left standing inside the new corner, and a gate from 1.2.0 stays closed until someone opens it.
-- road repair fills a break of up to three blocks in a village path, as long as the path carries on at both ends in a straight line. 1.2.0 only filled a hole one block long, so a wider break stayed open for good. a break of four blocks or more is still left alone, because it may be two paths that were never joined.
+- a road more than 5 blocks wide on the wall line, or one that runs along the wall, is left open without gates.
+- road repair fills a break of up to three blocks in a village path, as long as the path carries on in a straight line at both ends. 1.2.0 only filled a hole one block long, so a longer break stayed open for good. a break of four blocks or more is still left alone, because it may be two paths that were never joined.
+- walls and gates that 1.2.0 already built stay where they are. where a crossing is redrawn, a few blocks of the old diagonal wall can be left standing inside the new corner, and a gate from 1.2.0 stays closed until someone opens it.
 
 ### fixed
 
+- a hole in a village path split a road crossing in two.
 - a lamp post could go up in a hole in the middle of a path, because the hole counted as ground beside a road. the post then blocked that block's repair and hid the path from the blocks next to it. posts, and the arm of the snowy post, now keep out of any spot that road repair would fill.
 
 ## 1.2.0 · 2026-11-12

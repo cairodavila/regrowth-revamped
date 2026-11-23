@@ -24,7 +24,7 @@ Regrowth lets creatures affect nearby vegetation and gives villagers small jobs 
 - Minecraft 26.2 and 26.3 support on Java 25
 - village boundaries generated from nearby meeting, home and job-site POIs
 - one wall ring per village, however many bells it has
-- road-crossing gates instead of walls placed across paths
+- a straight row of open gates where a road crosses the wall
 - walls that grow as connected runs and step with the terrain, with the original square layout available as `legacy` mode
 - lamp posts beside dark village paths, in the style of vanilla's village lamps
 - conservative block replacement using data-pack tags
@@ -44,7 +44,7 @@ the existing animal and monster actions still work the same way.
 
 ## installation
 
-1. download the JAR for your Minecraft version from [Modrinth](https://modrinth.com/mod/regrowth-revamped). the file name ends in the Minecraft version, like `1.2.0+26.3`.
+1. download the JAR for your Minecraft version from [Modrinth](https://modrinth.com/mod/regrowth-revamped). the file name ends in the Minecraft version, like `1.3.0+26.3`.
 2. copy it into the instance's `mods` directory.
 3. start Minecraft once to create `config/regrowthconfig.properties`.
 
@@ -165,7 +165,7 @@ block.performBonemeal(level, level.getRandom(), pos, state, BonemealSource.MOB);
 
 ## versioning
 
-Revamped uses semantic versioning. every release is built once per Minecraft version, and the Minecraft version is added as build metadata: `1.2.0+26.2` and `1.2.0+26.3` are the same release. the [changelog](CHANGELOG.md) lists every release.
+Revamped uses semantic versioning. every release is built once per Minecraft version, and the Minecraft version is added as build metadata: `1.3.0+26.2` and `1.3.0+26.3` are the same release. the [changelog](CHANGELOG.md) lists every release.
 
 ## credits
 
