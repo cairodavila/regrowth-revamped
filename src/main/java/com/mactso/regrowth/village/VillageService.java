@@ -35,6 +35,7 @@ public final class VillageService {
 	private static final int COMMAND_VILLAGE_RADIUS = 96;
 	private static final int PREVIEW_PARTICLE_LIMIT = 400;
 	private static final int[][] ORTHOGONAL_STEPS = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
+	private static final int[][] ROAD_AXES = { { 1, 0 }, { 0, 1 } };
 
 	private VillageService() {
 	}
@@ -178,18 +179,72 @@ public final class VillageService {
 			level.destroyBlock(above, false);
 			return true;
 		}
-		if (VillageSafety.isRoad(groundState, village.profile())
-				|| !level.canSeeSky(above)
-				|| !VillageSafety.canReplaceRoad(level, ground, village.profile())) {
+		if (!level.canSeeSky(above)) {
 			return false;
 		}
+		return roadRepair(level, ground, village.profile())
+				.map(road -> level.setBlock(ground, road.defaultBlockState(), Block.UPDATE_ALL))
+				.orElse(false);
+	}
 
-		RoadNeighbors neighbors = roadNeighbors(level, ground, village.profile());
-		if (neighbors.roadCount() >= 3
-				|| village.profile().roads().smoothSlopes() && neighbors.connectsOppositeSides()) {
-			return level.setBlock(ground, neighbors.preferredRoad().defaultBlockState(), Block.UPDATE_ALL);
+	/**
+	 * The road block that natural ground should become, if it's a break in a road: road on three sides, or a hole
+	 * of up to {@link RoadHole#MAXIMUM_LENGTH} blocks in a straight line with road at both ends.
+	 */
+	public static Optional<Block> roadRepair(ServerLevel level, BlockPos ground, VillageProfile profile) {
+		if (VillageSafety.isRoad(level.getBlockState(ground), profile)
+				|| !VillageSafety.canReplaceRoad(level, ground, profile)) {
+			return Optional.empty();
 		}
-		return false;
+		RoadNeighbors neighbors = roadNeighbors(level, ground, profile);
+		if (neighbors.roadCount() >= 3) {
+			return Optional.of(neighbors.preferredRoad());
+		}
+		if (!profile.roads().smoothSlopes()) {
+			return Optional.empty();
+		}
+		for (int[] axis : ROAD_AXES) {
+			Optional<RoadEnd> before = roadEnd(level, ground, profile, -axis[0], -axis[1]);
+			if (before.isEmpty()) {
+				continue;
+			}
+			Optional<RoadEnd> after = roadEnd(level, ground, profile, axis[0], axis[1]);
+			if (after.isPresent() && RoadHole.spans(before.get().fillable(), after.get().fillable())) {
+				// In the middle of a hole no neighbor is road yet, so the road at its end sets the material.
+				return Optional.of(neighbors.roadCount() > 0 ? neighbors.preferredRoad() : before.get().road());
+			}
+		}
+		return Optional.empty();
+	}
+
+	/** The nearest road one way along a line, across fillable ground that steps at most one block at a time. */
+	private static Optional<RoadEnd> roadEnd(
+			ServerLevel level,
+			BlockPos center,
+			VillageProfile profile,
+			int stepX,
+			int stepZ) {
+		int previousY = center.getY();
+		for (int fillable = 0; fillable < RoadHole.MAXIMUM_LENGTH; fillable++) {
+			int x = center.getX() + stepX * (fillable + 1);
+			int z = center.getZ() + stepZ * (fillable + 1);
+			if (!VillageSafety.isColumnLoaded(level, x, z)) {
+				return Optional.empty();
+			}
+			BlockPos surface = VillageSafety.surface(level, x, z);
+			if (Math.abs(surface.getY() - previousY) > 1) {
+				return Optional.empty();
+			}
+			BlockState state = level.getBlockState(surface);
+			if (VillageSafety.isRoad(state, profile)) {
+				return Optional.of(new RoadEnd(fillable, state.getBlock()));
+			}
+			if (!VillageSafety.canReplaceRoad(level, surface, profile)) {
+				return Optional.empty();
+			}
+			previousY = surface.getY();
+		}
+		return Optional.empty();
 	}
 
 	public static Optional<VillageContext> nearestContext(ServerLevel level, BlockPos position) {
@@ -268,7 +323,9 @@ public final class VillageService {
 		Block gate = profile.walls().gateBlock().orElse(Blocks.OAK_FENCE_GATE);
 		BlockState state = gate.defaultBlockState();
 		if (gate instanceof FenceGateBlock) {
-			state = state.setValue(FenceGateBlock.FACING, direction(node.outward()));
+			// Open, because villagers can't work a fence gate and a closed row would pen them in or out.
+			state = state.setValue(FenceGateBlock.FACING, direction(node.outward()))
+					.setValue(FenceGateBlock.OPEN, true);
 		}
 		return state;
 	}
@@ -297,10 +354,6 @@ public final class VillageService {
 			BlockPos center,
 			VillageProfile profile) {
 		Map<Block, Integer> roadCounts = new HashMap<>();
-		boolean east = false;
-		boolean west = false;
-		boolean south = false;
-		boolean north = false;
 		for (int[] step : ORTHOGONAL_STEPS) {
 			BlockPos neighborSurface = VillageSafety.surface(
 					level, center.getX() + step[0], center.getZ() + step[1]);
@@ -310,17 +363,13 @@ public final class VillageService {
 				continue;
 			}
 			roadCounts.merge(neighborState.getBlock(), 1, Integer::sum);
-			east |= step[0] > 0;
-			west |= step[0] < 0;
-			south |= step[1] > 0;
-			north |= step[1] < 0;
 		}
 		Block preferredRoad = roadCounts.entrySet().stream()
 				.max(Map.Entry.comparingByValue())
 				.map(Map.Entry::getKey)
 				.orElse(Blocks.DIRT_PATH);
 		int roadCount = roadCounts.values().stream().mapToInt(Integer::intValue).sum();
-		return new RoadNeighbors(preferredRoad, roadCount, east && west || north && south);
+		return new RoadNeighbors(preferredRoad, roadCount);
 	}
 
 	private static void moveVillagerAwayFromBoundary(Villager villager, BoundaryNode node) {
@@ -338,6 +387,10 @@ public final class VillageService {
 		};
 	}
 
-	private record RoadNeighbors(Block preferredRoad, int roadCount, boolean connectsOppositeSides) {
+	private record RoadNeighbors(Block preferredRoad, int roadCount) {
+	}
+
+	/** A road block found along a line, and the blocks of fillable ground before it. */
+	private record RoadEnd(int fillable, Block road) {
 	}
 }

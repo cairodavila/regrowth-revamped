@@ -2,7 +2,6 @@ package com.mactso.regrowth.village;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,6 +12,13 @@ import com.mactso.regrowth.village.VillagePlan.BoundaryRole;
 import com.mactso.regrowth.village.VillagePlan.CardinalDirection;
 
 public final class VillageGeometryPlanner {
+
+	/** A crossing wider than this is left open; a longer row of gates is a road running along the boundary. */
+	private static final int MAXIMUM_GATE_WIDTH = 5;
+	/** Road nodes this few non-road nodes apart count as one crossing. */
+	private static final int MAXIMUM_ROAD_GAP = 2;
+	/** Wall nodes kept in line on each side of a crossing, preferred first. */
+	private static final int[] CROSSING_FLANKS = { 2, 1, 3 };
 
 	private VillageGeometryPlanner() {
 	}
@@ -33,36 +39,178 @@ public final class VillageGeometryPlanner {
 		return new VillagePlan(meetingPoint, settings.mode(), boundary, relevantPoints.size());
 	}
 
-	public static VillagePlan markRoadGates(VillagePlan plan, Predicate<BoundaryNode> crossesRoad) {
-		int boundarySize = plan.boundary().size();
-		if (boundarySize == 0) {
-			return plan;
-		}
-
-		boolean[] roadCandidates = new boolean[boundarySize];
-		int firstNonRoad = -1;
+	/**
+	 * Turns every road crossing into gates. Around a crossing the boundary is redrawn as two straight legs, so the
+	 * gates span the road in one line with wall on both sides, even where the boundary runs diagonally. The corner
+	 * goes on the outside, so the redrawn stretch never cuts into the village. A crossing that can't be drawn that
+	 * way (a road running along the boundary, a plaza) is left open without gates.
+	 *
+	 * @param isBuilt whether a node already holds a wall or gate; a crossing keeps the line that is already built
+	 *                when the road's edge shifts by a block between plans
+	 */
+	public static VillagePlan markRoadGates(
+			VillagePlan plan,
+			Predicate<BoundaryNode> crossesRoad,
+			Predicate<BoundaryNode> isBuilt) {
+		List<BoundaryNode> nodes = new ArrayList<>(plan.boundary());
+		int boundarySize = nodes.size();
+		boolean[] onRoad = new boolean[boundarySize];
 		for (int index = 0; index < boundarySize; index++) {
-			roadCandidates[index] = crossesRoad.test(plan.boundary().get(index));
-			if (!roadCandidates[index] && firstNonRoad < 0) {
-				firstNonRoad = index;
+			onRoad[index] = crossesRoad.test(nodes.get(index));
+		}
+		// Village paths have holes; a short gap between road nodes is still the same road.
+		boolean[] road = onRoad.clone();
+		for (int index = 0; index < boundarySize; index++) {
+			for (int reach = 2; onRoad[index] && reach <= MAXIMUM_ROAD_GAP + 1; reach++) {
+				if (onRoad[(index + reach) % boundarySize]) {
+					for (int gap = 1; gap < reach; gap++) {
+						road[(index + gap) % boundarySize] = true;
+					}
+				}
 			}
 		}
-		if (firstNonRoad < 0) {
-			return plan.withBoundaryRoles(Collections.nCopies(boundarySize, BoundaryRole.OPENING));
+		int firstNonRoad = 0;
+		while (firstNonRoad < boundarySize && road[firstNonRoad]) {
+			firstNonRoad++;
+		}
+		if (firstNonRoad == boundarySize) {
+			nodes.replaceAll(node -> withRole(node, BoundaryRole.OPENING));
+			return new VillagePlan(plan.meetingPoint(), plan.mode(), nodes, plan.pointOfInterestCount());
 		}
 
-		List<BoundaryRole> roles = new ArrayList<>(Collections.nCopies(boundarySize, BoundaryRole.WALL));
-		List<Integer> roadRun = new ArrayList<>();
+		// Road nodes, plus every node an earlier crossing already redrew.
+		boolean[] taken = road.clone();
+		int runLength = 0;
 		for (int offset = 1; offset <= boundarySize; offset++) {
 			int index = Math.floorMod(firstNonRoad + offset, boundarySize);
-			if (roadCandidates[index]) {
-				roadRun.add(index);
-			} else if (!roadRun.isEmpty()) {
-				markGateRun(roles, roadRun);
-				roadRun.clear();
+			if (road[index]) {
+				runLength++;
+			} else if (runLength > 0) {
+				crossRoad(nodes, taken, index - runLength, runLength, crossesRoad, isBuilt);
+				runLength = 0;
 			}
 		}
-		return plan.withBoundaryRoles(roles);
+		return new VillagePlan(plan.meetingPoint(), plan.mode(), nodes, plan.pointOfInterestCount());
+	}
+
+	private static void crossRoad(
+			List<BoundaryNode> nodes,
+			boolean[] taken,
+			int firstRoad,
+			int roadLength,
+			Predicate<BoundaryNode> crossesRoad,
+			Predicate<BoundaryNode> isBuilt) {
+		int boundarySize = nodes.size();
+		List<BoundaryNode> best = List.of();
+		int bestStart = 0;
+		int bestBuilt = -1;
+		for (int before : CROSSING_FLANKS) {
+			for (int after : CROSSING_FLANKS) {
+				int start = firstRoad - before;
+				int length = before + roadLength + after;
+				if (length >= boundarySize || !isFree(taken, start, before)
+						|| !isFree(taken, firstRoad + roadLength, after)) {
+					continue;
+				}
+				List<BoundaryNode> crossing = straightCrossing(
+						nodes.get(Math.floorMod(start, boundarySize)),
+						nodes.get(Math.floorMod(start + length - 1, boundarySize)),
+						length,
+						crossesRoad);
+				// Only blocks off the old line count: those can only be there because this line was picked before.
+				int built = 0;
+				for (int offset = 0; offset < crossing.size(); offset++) {
+					BoundaryNode node = crossing.get(offset);
+					if (!node.position().equals(nodes.get(Math.floorMod(start + offset, boundarySize)).position())
+							&& isBuilt.test(node)) {
+						built++;
+					}
+				}
+				if (!crossing.isEmpty() && built > bestBuilt) {
+					best = crossing;
+					bestStart = start;
+					bestBuilt = built;
+				}
+			}
+		}
+		for (int offset = 0; offset < best.size(); offset++) {
+			int index = Math.floorMod(bestStart + offset, boundarySize);
+			nodes.set(index, best.get(offset));
+			taken[index] = true;
+		}
+		if (best.isEmpty()) {
+			for (int offset = 0; offset < roadLength; offset++) {
+				int index = Math.floorMod(firstRoad + offset, boundarySize);
+				nodes.set(index, withRole(nodes.get(index), BoundaryRole.OPENING));
+			}
+		}
+	}
+
+	private static boolean isFree(boolean[] taken, int start, int length) {
+		for (int offset = 0; offset < length; offset++) {
+			if (taken[Math.floorMod(start + offset, taken.length)]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * The nodes from {@code start} to {@code end} as two straight legs with gates on the road, or nothing when the
+	 * road doesn't cross one leg cleanly. It has as many nodes as the stretch it replaces, so the nodes after it
+	 * keep their index and the wall torches their spacing.
+	 */
+	private static List<BoundaryNode> straightCrossing(
+			BoundaryNode first,
+			BoundaryNode last,
+			int length,
+			Predicate<BoundaryNode> crossesRoad) {
+		GridPoint start = first.position();
+		GridPoint end = last.position();
+		int deltaX = end.x() - start.x();
+		int deltaZ = end.z() - start.z();
+		if (Math.abs(deltaX) + Math.abs(deltaZ) != length - 1) {
+			// The stretch doubles back around a sharp corner of the boundary.
+			return List.of();
+		}
+		// The boundary's outward side is its travel direction turned by (z, -x); see outwardDirection.
+		GridPoint corner = (long) deltaX * deltaZ > 0
+				? new GridPoint(end.x(), start.z())
+				: new GridPoint(start.x(), end.z());
+		List<GridPoint> line = new ArrayList<>(orthogonalRasterLine(start, corner));
+		List<GridPoint> secondLeg = orthogonalRasterLine(corner, end);
+		line.addAll(secondLeg.subList(1, secondLeg.size()));
+
+		List<BoundaryNode> crossing = new ArrayList<>(length);
+		int firstRoad = -1;
+		int lastRoad = -1;
+		crossing.add(first);
+		for (int index = 1; index < length - 1; index++) {
+			BoundaryNode node = new BoundaryNode(
+					line.get(index), outwardDirection(line.get(index), line.get(index + 1)), BoundaryRole.WALL);
+			if (crossesRoad.test(node)) {
+				firstRoad = firstRoad < 0 ? index : firstRoad;
+				lastRoad = index;
+			}
+			crossing.add(node);
+		}
+		crossing.add(last);
+		// The gates need wall in line at both ends, so they can't reach the corner. The two end nodes are off the
+		// road already.
+		int cornerIndex = Math.abs(corner.x() - start.x()) + Math.abs(corner.z() - start.z());
+		if (firstRoad < 0 || lastRoad - firstRoad >= MAXIMUM_GATE_WIDTH
+				|| firstRoad <= cornerIndex && cornerIndex <= lastRoad) {
+			return List.of();
+		}
+		// Holes in the road between its first and last block get a gate too.
+		for (int index = firstRoad; index <= lastRoad; index++) {
+			crossing.set(index, withRole(crossing.get(index), BoundaryRole.GATE));
+		}
+		return crossing;
+	}
+
+	private static BoundaryNode withRole(BoundaryNode node, BoundaryRole role) {
+		return new BoundaryNode(node.position(), node.outward(), role);
 	}
 
 	static List<GridPoint> adaptiveHull(
@@ -203,17 +351,6 @@ public final class VillageGeometryPlanner {
 			return normalX >= 0 ? CardinalDirection.EAST : CardinalDirection.WEST;
 		}
 		return normalZ >= 0 ? CardinalDirection.SOUTH : CardinalDirection.NORTH;
-	}
-
-	private static void markGateRun(List<BoundaryRole> roles, List<Integer> roadRun) {
-		int boundarySize = roles.size();
-		for (int index : roadRun) {
-			roles.set(index, BoundaryRole.OPENING);
-		}
-		int centerIndex = roadRun.get(roadRun.size() / 2);
-		roles.set(centerIndex, BoundaryRole.GATE);
-		roles.set(Math.floorMod(roadRun.getFirst() - 1, boundarySize), BoundaryRole.OPENING);
-		roles.set(Math.floorMod(roadRun.getLast() + 1, boundarySize), BoundaryRole.OPENING);
 	}
 
 	private static long cross(GridPoint origin, GridPoint a, GridPoint b) {

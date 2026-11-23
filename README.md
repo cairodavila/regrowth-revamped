@@ -24,7 +24,7 @@ Regrowth lets creatures affect nearby vegetation and gives villagers small jobs 
 - Minecraft 26.2 and 26.3 support on Java 25
 - village boundaries generated from nearby meeting, home and job-site POIs
 - one wall ring per village, however many bells it has
-- road-crossing gates instead of walls placed across paths
+- a straight row of open gates where a road crosses the wall
 - walls that grow as connected runs and step with the terrain, with the original square layout available as `legacy` mode
 - lamp posts beside dark village paths, in the style of vanilla's village lamps
 - conservative block replacement using data-pack tags
@@ -44,7 +44,7 @@ the existing animal and monster actions still work the same way.
 
 ## installation
 
-1. download the JAR for your Minecraft version from [Modrinth](https://modrinth.com/mod/regrowth-revamped). the file name ends in the Minecraft version, like `1.2.0+26.3`.
+1. download the JAR for your Minecraft version from [Modrinth](https://modrinth.com/mod/regrowth-revamped). the file name ends in the Minecraft version, like `1.3.0+26.3`.
 2. copy it into the instance's `mods` directory.
 3. start Minecraft once to create `config/regrowthconfig.properties`.
 
@@ -54,7 +54,7 @@ villagers can change roads, build walls and put up lamp posts. back up an existi
 
 the default `poi_hull` mode builds a boundary around nearby village POIs and scans that boundary for roads. plans are cached by dimension and village. bells within 64 blocks of each other belong to one village, which gets one boundary centred on the bell nearest the middle of its homes and job sites; `/regrowth village analyze` reports that bell. villagers still work one block at a time; calculating a plan does not rebuild a village immediately.
 
-the wall grows as connected runs: a villager near the boundary extends a stretch that's already started before beginning a new one. it steps up with the terrain, replaces grass, flowers and bushes in its way, and opens only where a road crosses it, with a fence gate in the middle of each opening. water is left open. a ring takes several in-game days, and a stretch no villager walks past stays open.
+the wall grows as connected runs: a villager near the boundary extends a stretch that's already started before beginning a new one. it steps up with the terrain, replaces grass, flowers and bushes in its way, and where a road crosses it the wall runs straight, with open fence gates across the whole road and wall on both sides. where the wall meets the road at an angle, it turns a corner beside the road so the gates still stand in one row. water is left open. a ring takes several in-game days, and a stretch no villager walks past stays open.
 
 wall construction keeps Regrowth's original control-block behavior. unless `key.playerWallControlBlockString` is set to `minecraft:air`, the configured block must be directly above the village's bell, the one `analyze` reports; a block above any other bell of the same village doesn't count. new village chunks receive the control block automatically. a village that had already been explored before the mod was added gets no automatic block, so its walls don't start until someone places the configured control block on the bell that `analyze` reports.
 
@@ -85,7 +85,7 @@ the default villager action string is still `chrwvt`:
 | --- | --- |
 | `c` | clear obstructing grass (flowers are left alone) |
 | `h` | let clerics heal people and toolsmiths repair iron golems |
-| `r` | clear snow and repair likely gaps in roads |
+| `r` | repair breaks of up to three blocks in village paths, and clear snow off roads |
 | `w` | build village walls and road-crossing gates |
 | `v` | trim natural leaves and cactus |
 | `t` | put up lamp posts beside dark village paths, and place torches in dark covered spots, near farms and along walls |
@@ -165,7 +165,7 @@ block.performBonemeal(level, level.getRandom(), pos, state, BonemealSource.MOB);
 
 ## versioning
 
-Revamped uses semantic versioning. every release is built once per Minecraft version, and the Minecraft version is added as build metadata: `1.2.0+26.2` and `1.2.0+26.3` are the same release. the [changelog](CHANGELOG.md) lists every release.
+Revamped uses semantic versioning. every release is built once per Minecraft version, and the Minecraft version is added as build metadata: `1.3.0+26.2` and `1.3.0+26.3` are the same release. the [changelog](CHANGELOG.md) lists every release.
 
 ## credits
 

@@ -146,7 +146,10 @@ public final class VillagePlanManager {
 				boundary);
 		VillagePlan plan = VillageGeometryPlanner.markRoadGates(
 				walls,
-				node -> VillageSafety.crossesRoad(level, profile, node));
+				node -> VillageSafety.crossesRoad(level, profile, node),
+				node -> VillageSafety.boundarySite(level, profile, node)
+						.map(VillageSafety.BoundarySite::alreadyBuilt)
+						.orElse(false));
 		LOGGER.info("Built {} village plan at {} in {}: profile={}, POIs={}, boundary={}, gates={}, openings={}",
 				plan.mode().name().toLowerCase(), meetingPoint, level.dimension().identifier(), profile.id(),
 				plan.pointOfInterestCount(), plan.boundary().size(), plan.gateCount(), plan.openingWidths());

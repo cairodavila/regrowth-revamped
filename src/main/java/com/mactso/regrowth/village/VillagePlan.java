@@ -86,18 +86,6 @@ public record VillagePlan(
 		return new IndexedBoundaryNode(neighborIndex, boundary.get(neighborIndex));
 	}
 
-	public VillagePlan withBoundaryRoles(List<BoundaryRole> roles) {
-		if (roles.size() != boundary.size()) {
-			throw new IllegalArgumentException("A boundary role is required for every boundary node");
-		}
-		List<BoundaryNode> updatedBoundary = new ArrayList<>(boundary.size());
-		for (int index = 0; index < boundary.size(); index++) {
-			BoundaryNode node = boundary.get(index);
-			updatedBoundary.add(new BoundaryNode(node.position(), node.outward(), roles.get(index)));
-		}
-		return new VillagePlan(meetingPoint, mode, updatedBoundary, pointOfInterestCount);
-	}
-
 	public record BoundaryNode(GridPoint position, CardinalDirection outward, BoundaryRole role) {
 	}
 

@@ -21,7 +21,7 @@ Revamped ports the mod to Minecraft 26.2 and 26.3 and replaces the original assu
 - works on dedicated servers and in singleplayer
 - adaptive boundaries built from meeting, home and job-site POIs
 - one wall ring per village, however many bells it has
-- gates and openings where roads cross the planned wall
+- a straight row of gates where a road crosses the planned wall
 - walls that grow as connected runs and step with the terrain
 - lamp posts beside dark village paths, in the style of vanilla's village lamps
 - the original fixed-square wall algorithm, available as `legacy` mode
@@ -35,7 +35,7 @@ Revamped ports the mod to Minecraft 26.2 and 26.3 and replaces the original assu
 
 the default `poi_hull` mode expands a boundary around nearby village POIs and scans that boundary for roads. villagers then build it gradually, one block at a time. a village with several bells within 64 blocks of each other gets one boundary, centred on the bell nearest the middle of its homes and job sites.
 
-the wall grows as connected runs: a villager near the boundary extends a stretch that's already started before beginning a new one. it steps up with the terrain, replaces grass, flowers and bushes in its way, and opens only where a road crosses it, with a fence gate in the middle of each opening. water is left open. a ring takes several in-game days, and a stretch no villager walks past stays open.
+the wall grows as connected runs: a villager near the boundary extends a stretch that's already started before beginning a new one. it steps up with the terrain, replaces grass, flowers and bushes in its way, and where a road crosses it the wall runs straight, with open fence gates across the whole road and wall on both sides. where the wall meets the road at an angle, it turns a corner beside the road so the gates still stand in one row. water is left open. a ring takes several in-game days, and a stretch no villager walks past stays open.
 
 wall construction keeps Regrowth's original control-block behavior. unless `key.playerWallControlBlockString` is set to `minecraft:air`, the configured control block must be directly above the village's bell, the one `/regrowth village analyze` reports; a block above any other bell of the same village doesn't count. new village chunks receive this block automatically. a village that had already been explored before the mod was added gets no automatic block, so its walls don't start until someone places the configured control block on the bell that `/regrowth village analyze` reports.
 
@@ -64,7 +64,7 @@ the default villager action string is still `chrwvt`.
 | --- | --- |
 | `c` | clear obstructing grass (flowers are left alone) |
 | `h` | let clerics heal people and toolsmiths repair iron golems |
-| `r` | clear snow and repair likely road gaps |
+| `r` | repair breaks of up to three blocks in village paths, and clear snow off roads |
 | `w` | build planned village walls and road-crossing gates |
 | `v` | trim natural leaves and cactus |
 | `t` | put up lamp posts beside dark village paths, and place torches in dark covered spots, near farms and along walls |
@@ -94,7 +94,7 @@ commands need game-master permission and select the nearest meeting POI within 9
 | 26.3 | 0.165.2+26.3 or newer | 0.19.3 or newer | 25 |
 | 26.2 | 0.161.0+26.2 or newer | 0.19.3 or newer | 25 |
 
-pick the file that matches your Minecraft version; its version number ends in it, like `1.2.0+26.3`. [Fabric API](https://modrinth.com/mod/fabric-api) is a required dependency.
+pick the file that matches your Minecraft version; its version number ends in it, like `1.3.0+26.3`. [Fabric API](https://modrinth.com/mod/fabric-api) is a required dependency.
 
 ## installation
 
