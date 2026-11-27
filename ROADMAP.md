@@ -4,7 +4,7 @@ ideas for Regrowth: Revamped that aren't built yet. nothing here is promised or 
 
 ## walls that weather
 
-walls turn mossy over time instead of being built mossy. a villager walking the ring sometimes swaps a wall block it passes for its mossy version: cobblestone wall to mossy cobblestone wall, stone brick wall to mossy stone brick wall, cobblestone and stone bricks to their mossy blocks. this rides on the wall checks villagers already make, so it adds no ticking of its own. blocks with no mossy version, like sandstone, stay as they are. a profile can turn it off.
+walls turn mossy over time on their own, the way copper oxidizes: a wall block now and then becomes its mossy version, so an old wall slowly picks up moss. cobblestone wall becomes mossy cobblestone wall, stone brick wall becomes mossy stone brick wall, and cobblestone and stone bricks become their mossy blocks. walls are never built mossy. blocks with no mossy version, like sandstone, stay as they are. this runs on Minecraft's random block ticks, so it applies to every wall, the player's own included.
 
 walls can be waxed like copper. honeycomb on a wall block stops it weathering for good, and an axe takes the wax off again. this works on any wall, the player's own included, so a player who wants a clean wall keeps it clean. walls have no waxed variant, so the mod would keep the waxed positions itself.
 
@@ -15,7 +15,6 @@ a village either looks after itself or lets itself go, depending on how its vill
 ## other ideas
 
 - clerics heal a player with Hero of the Village at any time of day while the effect lasts. today healing only runs between day time 9000 and 11000.
-- farmers vary their crops. vanilla farmers plant the first plantable stack in their inventory, so new farmland mostly gets wheat seeds. a farmer carrying more than one kind could plant whichever is least common in the fields nearby.
 
 ## open questions
 
